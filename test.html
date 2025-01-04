@@ -1,1 +1,144 @@
-///001
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LIFF App ค้นหาข้อมูล</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f2f2f2; /* เปลี่ยนสีพื้นหลัง */
+    }
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333; /* เปลี่ยนสีข้อความ */
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50; /* เปลี่ยนสีปุ่ม */
+      color: white;
+      padding: 10px 20px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50; /* เปลี่ยนสีพื้นหลังหัวตาราง */
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ค้นหาข้อมูล</h1>
+    <input type="text" id="searchInput" placeholder="ป้อนข้อมูลที่ต้องการค้นหา">
+    <button onclick="searchData()">ค้นหา</button>
+    <div id="result"></div>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    function searchData() {
+      // ดึงข้อมูลจาก Google Sheet
+      fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vThUIL4C4_4z5vQmOPS7IgHhjWuu24zK8IHHjmdQycNYznst0-upFWuPhD58Hr0n6p40W9Tsf3iHNoR/pub?output=csv') // เปลี่ยน URL เป็น URL ของ Google Sheet ของคุณ
+        .then(response => response.text())
+        .then(data => {
+          const rows = data.split('\n');
+          const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+          let results = [];
+
+          // ค้นหาข้อมูล
+          for (let i = 1; i < rows.length; i++) { // เริ่มที่ i = 1 เพื่อข้ามหัวตาราง
+            const columns = rows[i].split(',');
+            if (columns[0].toLowerCase().includes(searchTerm)) {
+              results.push(columns);
+            }
+          }
+
+          // แสดงผลลัพธ์
+          displayResults(results);
+        });
+    }
+
+    function displayResults(results) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = ''; // ล้างผลลัพธ์เดิม
+
+      if (results.length === 0) {
+        resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
+        return;
+      }
+
+      // สร้างตารางแสดงผลลัพธ์
+      const table = document.createElement('table');
+      const headerRow = table.insertRow();
+      // ดึงหัวตารางจากแถวแรกของข้อมูล
+      const headers = results[0]; 
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+
+      // เพิ่มข้อมูลลงในตาราง
+      for (let i = 1; i < results.length; i++) { // เริ่มที่ i = 1 เพื่อข้ามหัวตาราง
+        const row = table.insertRow();
+        results[i].forEach(data => {
+          const cell = row.insertCell();
+          cell.textContent = data;
+        });
+      }
+
+      resultDiv.appendChild(table);
+    }
+
+    // 初始化 LIFF
+    function initializeLIFF() {
+      liff.init({
+        liffId: "2006665858-drlDwV2y" // เปลี่ยน LIFF ID เป็น LIFF ID ของคุณ
+      })
+      .then(() => {
+        // เริ่มต้นใช้งาน LIFF App
+        console.log('LIFF initialized!');
+      })
+      .catch((err) => {
+        console.error('LIFF initialization failed: ', err);
+      });
+    }
+
+    // ตรวจสอบว่าอยู่ใน LINE หรือไม่
+    if (typeof liff !== 'undefined') {
+      initializeLIFF();
+    } else {
+      // แสดงข้อความหากไม่ได้อยู่ใน LINE
+      document.getElementById('result').innerHTML = '<p>กรุณาเปิดหน้านี้ใน LINE</p>';
+    }
+  </script>
+</body>
+</html>
