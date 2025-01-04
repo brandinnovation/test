@@ -66,7 +66,7 @@
   <script>
     function searchData() {
       // ดึงข้อมูลจาก Google Sheet
-      fetch('<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vThUIL4C4_4z5vQmOPS7IgHhjWuu24zK8IHHjmdQycNYznst0-upFWuPhD58Hr0n6p40W9Tsf3iHNoR/pubhtml?widget=true&amp;headers=false"></iframe>') // เปลี่ยน URL เป็น URL ของ Google Sheet ของคุณ
+      fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vThUIL4C4_4z5vQmOPS7IgHhjWuu24zK8IHHjmdQycNYznst0-upFWuPhD58Hr0n6p40W9Tsf3iHNoR/pub?output=csv') // เปลี่ยน URL เป็น URL ของ Google Sheet ของคุณ
         .then(response => response.text())
         .then(data => {
           const rows = data.split('\n');
