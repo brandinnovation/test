@@ -83,7 +83,7 @@
           // ค้นหาข้อมูล
           for (let i = 1; i < rows.length; i++) {
             const columns = rows[i].split(',');
-            const phoneNumber = columns[5].toLowerCase().replace(/-/g, ''); // column F, ลบเครื่องหมาย -
+            const Number = columns[1].toLowerCase().replace(/-/g, ''); // column F, ลบเครื่องหมาย -
             if (phoneNumber.includes(searchTerm)) {
               results.push(columns);
             }
