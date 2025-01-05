@@ -71,7 +71,8 @@
 
       try {
         const sheetUrls = [
-          'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/pub?output=csv'
+          'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/gviz/tq?tqx=out:csv&sheet=เพจ1',
+          'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/gviz/tq?tqx=out:csv&sheet=เพจ2'
         ];
 
         let results = [];
@@ -83,7 +84,7 @@
           // ค้นหาข้อมูล
           for (let i = 1; i < rows.length; i++) {
             const columns = rows[i].split(',');
-            const Number = columns[1].toLowerCase().replace(/-/g, ''); // column F, ลบเครื่องหมาย -
+            const phoneNumber = columns[5].toLowerCase().replace(/-/g, ''); // column F, ลบเครื่องหมาย -
             if (phoneNumber.includes(searchTerm)) {
               results.push(columns);
             }
