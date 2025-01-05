@@ -5,7 +5,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    /* ... CSS styles ... */ 
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4; /* สีพื้นหลัง body */
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333; /* สีข้อความ h1 */
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #008CBA; /* สีพื้นหลังปุ่ม */
+      color: white; /* สีตัวหนังสือปุ่ม */
+      padding: 10px 20px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .result-container {
+      margin-top: 20px;
+    }
+    .result-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .phone-number {
+      background-color: #007bff; /* สีน้ำเงิน */
+      color: white;
+    }
+    .order-number, .product, .address {
+      background-color: #343a40; /* สีเทาเข้ม */
+      color: white;
+    }
+    .status {
+      background-color: #28a745; /* สีเขียวเข้ม */
+      color: white;
+    }
+    .tracking-number {
+      background-color: #ffc107; /* สีเหลือง */
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -19,17 +75,16 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     async function searchData() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/-/g, ''); // ลบเครื่องหมาย -
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/-/g, '');
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = ''; // clear previous results
+      resultDiv.innerHTML = ''; 
 
       try {
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpaggq6Nt1y_tFzBOuJwXzB3eJvtAOxdhXjGzWzZtAyYlaTWmSjY37jLjFGPTH5XIPWw/exec'; // เปลี่ยน URL เป็น URL ของ Apps Script ของคุณ
+        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpaggq6Nt1y_tFzBOuJwXzB3eJvtAOxdhXjGzWzZtAyYlaTWmSjY37jLjFGPTH5XIPWw/exec'; 
 
         const response = await fetch(appsScriptUrl + '?function=searchPhone&searchTerm=' + searchTerm);
         const data = await response.json();
 
-        // แสดงผลลัพธ์
         displayResults(data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -39,41 +94,68 @@
 
     function displayResults(results) {
       const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = ''; 
 
       if (results.length === 0) {
         resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
         return;
       }
 
-      // สร้างตารางแสดงผลลัพธ์
-      const table = document.createElement('table');
-      const headerRow = table.insertRow();
-      const headers = ['เบอร์โทร', 'เลขออเดอร์', 'สินค้า', 'ที่อยู่', 'สถานะ', 'เลขพัสดุ'];
-      headers.forEach(header => {
-        const th = document.createElement('th');
-        th.textContent = header;
-        headerRow.appendChild(th);
+      const resultContainer = document.createElement('div');
+      resultContainer.classList.add('result-container');
+
+      results.forEach(result => {
+        const resultItem = document.createElement('div');
+        resultItem.classList.add('result-item');
+
+        // เบอร์โทร (สีน้ำเงิน, ตัวหนังสือสีขาว)
+        const phoneNumberDiv = document.createElement('div');
+        phoneNumberDiv.classList.add('phone-number');
+        phoneNumberDiv.textContent = "เบอร์โทร: " + result.phoneNumber;
+        resultItem.appendChild(phoneNumberDiv);
+
+        // เลขออเดอร์ (สีเทาเข้ม, ตัวหนังสือสีขาว)
+        const orderNumberDiv = document.createElement('div');
+        orderNumberDiv.classList.add('order-number');
+        orderNumberDiv.textContent = "เลขออเดอร์: " + result.orderNumber;
+        resultItem.appendChild(orderNumberDiv);
+
+        // สินค้า (สีเทาเข้ม, ตัวหนังสือสีขาว)
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        productDiv.textContent = "สินค้า: " + result.product;
+        resultItem.appendChild(productDiv);
+
+        // ที่อยู่ (สีเทาเข้ม, ตัวหนังสือสีขาว)
+        const addressDiv = document.createElement('div');
+        addressDiv.classList.add('address');
+        addressDiv.textContent = "ที่อยู่: " + result.address;
+        resultItem.appendChild(addressDiv);
+
+        // สถานะ (สีเขียวเข้ม, ตัวหนังสือสีขาว)
+        const statusDiv = document.createElement('div');
+        statusDiv.classList.add('status');
+        statusDiv.textContent = "สถานะ: " + result.status;
+        resultItem.appendChild(statusDiv);
+
+        // เลขพัสดุ (สีเหลือง, ตัวหนังสือสีขาว)
+        const trackingNumberDiv = document.createElement('div');
+        trackingNumberDiv.classList.add('tracking-number');
+        trackingNumberDiv.textContent = "เลขพัสดุ: " + result.trackingNumber;
+        resultItem.appendChild(trackingNumberDiv);
+
+        resultContainer.appendChild(resultItem);
       });
 
-      results.forEach(row => {
-        const dataRow = table.insertRow();
-        // แสดงเฉพาะคอลัมน์ A, B, D, E, F, G
-        [0, 1, 3, 4, 5, 6].forEach(index => {
-          const cell = dataRow.insertCell();
-          cell.textContent = row[index];
-        });
-      });
-
-      resultDiv.appendChild(table);
+      resultDiv.appendChild(resultContainer);
     }
 
     // 初始化 LIFF
     function initializeLIFF() {
       liff.init({
-        liffId: "2006665858-drlDwV2y" // เปลี่ยน LIFF ID เป็น LIFF ID ของคุณ
+        liffId: "2006665858-drlDwV2y" 
       })
       .then(() => {
-        // เริ่มต้นใช้งาน LIFF App
         console.log('LIFF initialized!');
       })
       .catch((err) => {
@@ -81,11 +163,9 @@
       });
     }
 
-    // ตรวจสอบว่าอยู่ใน LINE หรือไม่
     if (typeof liff !== 'undefined') {
       initializeLIFF();
     } else {
-      // แสดงข้อความหากไม่ได้อยู่ใน LINE
       document.getElementById('result').innerHTML = '<p>กรุณาเปิดหน้านี้ใน LINE</p>';
     }
   </script>
