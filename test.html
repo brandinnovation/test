@@ -46,11 +46,11 @@
     }
     .label { /* กำหนด style สำหรับ label */
       display: inline-block;
-      padding: 5px 18px; /* ระยะห่างภายใน label */
+      padding: 5px 8px; /* ระยะห่างภายใน label */
       border-radius: 5px; /* ขอบมนของ label */
       color: white; /* สีตัวหนังสือใน label */
-      margin-bottom: 10px; /* ระยะห่างระหว่าง label กับ data */
-      font-size: 15px; /* ขนาดตัวหนังสือ label */
+      margin-bottom: 6px; /* ระยะห่างระหว่าง label กับ data */
+      font-size: 14px; /* ขนาดตัวหนังสือ label */
     }
     .phone-number { /* กำหนดสีพื้นหลัง label เบอร์โทร */
       background-color: #007bff; /* สีน้ำเงิน */
@@ -67,12 +67,15 @@
     .data { /* กำหนด style สำหรับ data */
       color: black; /* สีดำ */
       font-size: 17px; /* ขนาดตัวหนังสือ data */
+      margin-bottom: 18px; /* เพิ่มระยะห่าง 15px ด้านล่าง data */
     }
-    .status .data { /* กำหนดสีตัวหนังสือ data สถานะ */
+    div.status .data { /* กำหนดสีตัวหนังสือ data สถานะ */
       color: green; /* สีเขียว */
+      font-weight: bold;
     }
-    .tracking-number .data { /* กำหนดสีตัวหนังสือ data เลขพัสดุ */
-      color: green; /* สีเขียว */
+    div.tracking-number .data { /* กำหนดสีตัวหนังสือ data เลขพัสดุ */
+      color: red; /* สีเขียว */
+      font-weight: bold;
     }
   </style>
 </head>
