@@ -43,24 +43,36 @@
     }
     .result-item {
       margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 5px;
+    }
+    .label {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px; /* ขอบมน */
+      color: white;
+      margin-bottom: 5px;
+      font-size: 16px; /* ขนาดตัวหนังสือ label */
     }
     .phone-number {
       background-color: #007bff; /* สีน้ำเงิน */
-      color: white;
     }
     .order-number, .product, .address {
       background-color: #343a40; /* สีเทาเข้ม */
-      color: white;
     }
     .status {
       background-color: #28a745; /* สีเขียวเข้ม */
-      color: white;
     }
     .tracking-number {
-      background-color: #ffc107; /* สีเหลือง */
-      color: white;
+      background-color: #dc3545; /* สีแดงเข้ม */
+    }
+    .data {
+      color: black; /* สีดำ */
+      font-size: 14px; /* ขนาดตัวหนังสือ data */
+    }
+    .status .data {
+      color: green; /* สีเขียว */
+    }
+    .tracking-number .data {
+      color: green; /* สีเขียว */
     }
   </style>
 </head>
@@ -109,40 +121,64 @@
         resultItem.classList.add('result-item');
 
         // เบอร์โทร (สีน้ำเงิน, ตัวหนังสือสีขาว)
-        const phoneNumberDiv = document.createElement('div');
-        phoneNumberDiv.classList.add('phone-number');
-        phoneNumberDiv.textContent = "เบอร์โทร: " + result.phoneNumber;
-        resultItem.appendChild(phoneNumberDiv);
+        const phoneNumberLabel = document.createElement('div');
+        phoneNumberLabel.classList.add('label', 'phone-number');
+        phoneNumberLabel.textContent = "เบอร์โทร";
+        const phoneNumberData = document.createElement('div');
+        phoneNumberData.classList.add('data');
+        phoneNumberData.textContent = result.phoneNumber;
+        resultItem.appendChild(phoneNumberLabel);
+        resultItem.appendChild(phoneNumberData);
 
         // เลขออเดอร์ (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const orderNumberDiv = document.createElement('div');
-        orderNumberDiv.classList.add('order-number');
-        orderNumberDiv.textContent = "เลขออเดอร์: " + result.orderNumber;
-        resultItem.appendChild(orderNumberDiv);
+        const orderNumberLabel = document.createElement('div');
+        orderNumberLabel.classList.add('label', 'order-number');
+        orderNumberLabel.textContent = "เลขออเดอร์";
+        const orderNumberData = document.createElement('div');
+        orderNumberData.classList.add('data');
+        orderNumberData.textContent = result.orderNumber;
+        resultItem.appendChild(orderNumberLabel);
+        resultItem.appendChild(orderNumberData);
 
         // สินค้า (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('product');
-        productDiv.textContent = "สินค้า: " + result.product;
-        resultItem.appendChild(productDiv);
+        const productLabel = document.createElement('div');
+        productLabel.classList.add('label', 'product');
+        productLabel.textContent = "สินค้า";
+        const productData = document.createElement('div');
+        productData.classList.add('data');
+        productData.textContent = result.product;
+        resultItem.appendChild(productLabel);
+        resultItem.appendChild(productData);
 
         // ที่อยู่ (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const addressDiv = document.createElement('div');
-        addressDiv.classList.add('address');
-        addressDiv.textContent = "ที่อยู่: " + result.address;
-        resultItem.appendChild(addressDiv);
+        const addressLabel = document.createElement('div');
+        addressLabel.classList.add('label', 'address');
+        addressLabel.textContent = "ที่อยู่";
+        const addressData = document.createElement('div');
+        addressData.classList.add('data');
+        addressData.textContent = result.address;
+        resultItem.appendChild(addressLabel);
+        resultItem.appendChild(addressData);
 
         // สถานะ (สีเขียวเข้ม, ตัวหนังสือสีขาว)
-        const statusDiv = document.createElement('div');
-        statusDiv.classList.add('status');
-        statusDiv.textContent = "สถานะ: " + result.status;
-        resultItem.appendChild(statusDiv);
+        const statusLabel = document.createElement('div');
+        statusLabel.classList.add('label', 'status');
+        statusLabel.textContent = "สถานะ";
+        const statusData = document.createElement('div');
+        statusData.classList.add('data');
+        statusData.textContent = result.status;
+        resultItem.appendChild(statusLabel);
+        resultItem.appendChild(statusData);
 
-        // เลขพัสดุ (สีเหลือง, ตัวหนังสือสีขาว)
-        const trackingNumberDiv = document.createElement('div');
-        trackingNumberDiv.classList.add('tracking-number');
-        trackingNumberDiv.textContent = "เลขพัสดุ: " + result.trackingNumber;
-        resultItem.appendChild(trackingNumberDiv);
+        // เลขพัสดุ (สีแดงเข้ม, ตัวหนังสือสีขาว)
+        const trackingNumberLabel = document.createElement('div');
+        trackingNumberLabel.classList.add('label', 'tracking-number');
+        trackingNumberLabel.textContent = "เลขพัสดุ";
+        const trackingNumberData = document.createElement('div');
+        trackingNumberData.classList.add('data');
+        trackingNumberData.textContent = result.trackingNumber;
+        resultItem.appendChild(trackingNumberLabel);
+        resultItem.appendChild(trackingNumberData);
 
         resultContainer.appendChild(resultItem);
       });
