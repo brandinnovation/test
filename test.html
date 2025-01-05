@@ -70,10 +70,7 @@
       resultDiv.innerHTML = ''; // clear previous results
 
       try {
-        const sheetUrls = [
-          'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/pub?output=csv',
-          'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/gviz/tq?tqx=out:csv&sheet=เพจ2'
-        ];
+        const sheetUrls = ['https://docs.google.com/spreadsheets/d/e/2PACX-1vQvGZHa3EE31eyyXYv6vwbFsw8tqq79R_6ZwKKs1V2PoydFho_eRgL5rhjdpQliEKJDAXHdIUiL9wXj/pub?output=csv'];
 
         let results = [];
         for (const sheetUrl of sheetUrls) {
