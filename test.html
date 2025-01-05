@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>LIFF App ค้นหาเบอร์โทร</title>
+  <title>ระบบค้นหาพัสดุจากเบอร์โทร</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -44,41 +44,41 @@
     .result-item {
       margin-bottom: 10px;
     }
-    .label {
+    .label { /* กำหนด style สำหรับ label */
       display: inline-block;
-      padding: 5px 10px;
-      border-radius: 20px; /* ขอบมน */
-      color: white;
-      margin-bottom: 5px;
-      font-size: 16px; /* ขนาดตัวหนังสือ label */
+      padding: 5px 10px; /* ระยะห่างภายใน label */
+      border-radius: 5px; /* ขอบมนของ label */
+      color: white; /* สีตัวหนังสือใน label */
+      margin-bottom: 15px; /* ระยะห่างระหว่าง label กับ data */
+      font-size: 15px; /* ขนาดตัวหนังสือ label */
     }
-    .phone-number {
+    .phone-number { /* กำหนดสีพื้นหลัง label เบอร์โทร */
       background-color: #007bff; /* สีน้ำเงิน */
     }
-    .order-number, .product, .address {
+    .order-number, .product, .address { /* กำหนดสีพื้นหลัง label อื่นๆ */
       background-color: #343a40; /* สีเทาเข้ม */
     }
-    .status {
+    .status { /* กำหนดสีพื้นหลัง label สถานะ */
       background-color: #28a745; /* สีเขียวเข้ม */
     }
-    .tracking-number {
+    .tracking-number { /* กำหนดสีพื้นหลัง label เลขพัสดุ */
       background-color: #dc3545; /* สีแดงเข้ม */
     }
-    .data {
+    .data { /* กำหนด style สำหรับ data */
       color: black; /* สีดำ */
       font-size: 17px; /* ขนาดตัวหนังสือ data */
     }
-    .status .data {
+    .status .data { /* กำหนดสีตัวหนังสือ data สถานะ */
       color: green; /* สีเขียว */
     }
-    .tracking-number .data {
+    .tracking-number .data { /* กำหนดสีตัวหนังสือ data เลขพัสดุ */
       color: green; /* สีเขียว */
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>ค้นหาข้อมูลเบอร์โทร</h1>
+    <h1>พัสดุโรงงานป้าย</h1>
     <input type="text" id="searchInput" placeholder="ป้อนเบอร์โทร">
     <button onclick="searchData()">ค้นหา</button>
     <div id="result"></div>
