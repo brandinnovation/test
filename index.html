@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #f8f8f8; /* สีเทาอ่อน */
+            background-color: #f5f5f5; /* สีเทาอ่อน */
         }
 
         table {
@@ -22,32 +22,22 @@
         }
 
         table tbody tr:nth-child(odd) {
-        background-color: #f0f0f0; /* สีเทาอ่อนสำหรับแถวคี่ */
+            background-color: #e0e0e0; /* สีเทาอ่อนสำหรับแถวคี่ */
         }
 
         table tbody tr:nth-child(even) {
-        background-color: #ffffff; /* สีขาวสำหรับแถวคู่ */
+            background-color: #ffffff; /* สีขาวสำหรับแถวคู่ */
         }
 
         td:nth-child(6) { /* เลือกคอลัมน์ที่ 6 (สถานะ) */
             color: red; 
-        }
-
-        .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
-            float: left;
-            width: 30%; /* ปรับขนาดตามต้องการ */
-        }
-
-        .data-container { /* กำหนด class ให้กับ div ที่บรรจุตาราง */
-            float: left;
-            width: 70%; /* ปรับขนาดตามต้องการ */
         }
     </style>
 </head>
 <body class="p-4">
     <h1 class="text-2xl font-bold mb-4">ข้อมูลออเดอร์</h1>
 
-    <div class="search-container mb-4">
+    <div class="mb-4">
         <label for="filterOrder" class="mr-2">เลขออเดอร์:</label>
         <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded mb-2">
 
@@ -78,23 +68,22 @@
         </button>
     </div>
 
-    <div class="data-container">
-        <table id="orderTable">
-            <thead>
-                <tr>
-                    <th>เลขออเดอร์</th>
-                    <th>ชื่อสินค้า</th>
-                    <th>ชื่อเฟส</th>
-                    <th>ที่อยู่</th>
-                    <th>เบอร์โทร</th>
-                    <th>สถานะ</th>
-                    <th>เลขพัสดุ</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+
+    <table id="orderTable">
+        <thead>
+            <tr>
+                <th>เลขออเดอร์</th>
+                <th>ชื่อสินค้า</th>
+                <th>ชื่อเฟส</th>
+                <th>ที่อยู่</th>
+                <th>เบอร์โทร</th>
+                <th>สถานะ</th>
+                <th>เลขพัสดุ</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
     <script>
         const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU';
