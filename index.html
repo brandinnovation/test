@@ -31,16 +31,21 @@
 
         .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
             width: 100%; /* ให้ชุดค้นหากินพื้นที่เต็มความกว้าง */
+            position: fixed; /* ให้ชุดค้นหาคงที่ */
+            top: 0; /* ให้ติดขอบบน */
+            left: 0; /* ให้ติดขอบซ้าย */
             background-color: #f5f5f5; /* สีพื้นหลังเดียวกับ body */
             padding: 20px; /* ระยะห่างภายใน */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* เงา */
+            z-index: 10; /* ให้ชุดค้นหาอยู่บนสุด */
             display: flex; /* จัดเรียง element ในแนวนอน */
             flex-wrap: wrap; /* อนุญาตให้ element ขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
             align-items: center; /* จัด element ให้อยู่กึ่งกลางในแนวตั้ง */
-            gap: 10px; /* ระยะห่างระหว่าง element */
         }
 
         .search-container > div {
-            flex: 1; /* แบ่งพื้นที่ให้แต่ละ div เท่าๆ กัน */
+            margin-bottom: 10px; /* ระยะห่างระหว่าง element */
+            margin-right: 10px; /* ระยะห่างระหว่าง element */
         }
 
         .search-container label {
@@ -104,21 +109,23 @@
         </div>
     </div>
 
-    <table id="orderTable">
-        <thead>
-            <tr>
-                <th>เลขออเดอร์</th>
-                <th>ชื่อสินค้า</th>
-                <th>ชื่อเฟส</th>
-                <th>ที่อยู่</th>
-                <th>เบอร์โทร</th>
-                <th>สถานะ</th>
-                <th>เลขพัสดุ</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div style="margin-top: 160px;">  
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>เลขออเดอร์</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>ชื่อเฟส</th>
+                    <th>ที่อยู่</th>
+                    <th>เบอร์โทร</th>
+                    <th>สถานะ</th>
+                    <th>เลขพัสดุ</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
     <script>
         const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; // **ใส่ SHEET_ID ของคุณตรงนี้**
@@ -126,17 +133,10 @@
         const SHEET_NAME2 = 'เพจ2';
 
         async function fetchData(sheetName) {
-            try {
-                const response = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
-                const data = await response.text();
-                const jsonData = JSON.parse(data.substring(47).slice(0, -2));
-                const rows = jsonData.table.rows;
-                console.log(`Data fetched from ${sheetName}:`, rows); // เพิ่ม console.log เพื่อตรวจสอบข้อมูล
-                return rows.map(row => row.c.map(cell => cell ? cell.v : ''));
-            } catch (error) {
-                console.error(`Error fetching data from ${sheetName}:`, error);
-                return [];
-            }
+            const response = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
+            const data = await response.text();
+            const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+            return jsonData.table.rows.map(row => row.c.map(cell => cell ? cell.v : ''));
         }
 
         function displayData(data) {
@@ -198,16 +198,13 @@
             const filterPhone = document.getElementById('filterPhone').value.toLowerCase();
             const filterStatus = document.getElementById('filterStatus').value;
 
-            const filteredData = data.filter(row => {
+            return data.filter(row => {
                 const orderMatch = row[0].toLowerCase().includes(filterOrder);
                 const nameMatch = row[3].toLowerCase().includes(filterName);
                 const phoneMatch = row[5].toLowerCase().includes(filterPhone);
                 const statusMatch = !filterStatus || row[6] === filterStatus;
                 return orderMatch && nameMatch && phoneMatch && statusMatch;
             });
-
-            console.log("Filtered data:", filteredData); // เพิ่ม console.log เพื่อตรวจสอบข้อมูล
-            return filteredData;
         }
 
         function sortData(data, sortAsc) {
