@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ข้อมูลออเดอร์</title>
+    <title>ข้อมูลออเดอร์งานเพจ บริษัท แบรนด์ อินโนเวชั่น จำกัด</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -32,12 +32,16 @@
         td:nth-child(6) { /* เลือกคอลัมน์ที่ 6 (สถานะ) */
             color: red; 
         }
+
+        .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
+            width: 100%; /* ให้ชุดค้นหากินพื้นที่เต็มความกว้าง */
+        }
     </style>
 </head>
 <body class="p-4">
     <h1 class="text-2xl font-bold mb-4">ข้อมูลออเดอร์</h1>
 
-    <div class="mb-4">
+    <div class="search-container mb-4"> 
         <label for="filterOrder" class="mr-2">เลขออเดอร์:</label>
         <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded mb-2">
 
@@ -68,7 +72,6 @@
         </button>
     </div>
 
-
     <table id="orderTable">
         <thead>
             <tr>
@@ -86,11 +89,10 @@
     </table>
 
     <script>
-        const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU';
+        const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; 
         const SHEET_NAME1 = 'เพจ1';
         const SHEET_NAME2 = 'เพจ2';
 
-        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets
         async function fetchData(sheetName) {
             const response = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
             const data = await response.text();
@@ -98,7 +100,6 @@
             return jsonData.table.rows.map(row => row.c.map(cell => cell ? cell.v : ''));
         }
 
-        // ฟังก์ชันสำหรับแสดงข้อมูลในตาราง
         function displayData(data) {
             const tableBody = document.getElementById('orderTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
@@ -113,13 +114,12 @@
                 const statusCell = newRow.insertCell();
                 const trackingCell = newRow.insertCell();
 
-                orderCell.textContent = row[0]; // เลขออเดอร์ (คอลัมน์ A)
-                productCell.textContent = row[1]; // ชื่อสินค้า (คอลัมน์ B)
-                nameCell.textContent = row[3]; // ชื่อเฟส (คอลัมน์ D)
-                addressCell.textContent = row[4]; // ที่อยู่ (คอลัมน์ E)
-                phoneCell.textContent = row[5]; // เบอร์โทร (คอลัมน์ F)
+                orderCell.textContent = row[0]; 
+                productCell.textContent = row[1]; 
+                nameCell.textContent = row[3]; 
+                addressCell.textContent = row[4]; 
+                phoneCell.textContent = row[5]; 
 
-                // สร้าง dropdown สำหรับสถานะ (คอลัมน์ G)
                 const statusSelect = document.createElement('select');
                 statusSelect.innerHTML = `
                     <option value="ออกแบบ" ${row[6] === 'ออกแบบ' ? 'selected' : ''}>ออกแบบ</option>
@@ -133,11 +133,10 @@
                 `;
                 statusCell.appendChild(statusSelect);
 
-                trackingCell.textContent = row[20]; // เลขพัสดุ (คอลัมน์ U)
+                trackingCell.textContent = row[20]; 
             });
         }
 
-        // ฟังก์ชันสำหรับกรองข้อมูล
         function filterData(data) {
             const filterOrder = document.getElementById('filterOrder').value.toLowerCase();
             const filterName = document.getElementById('filterName').value.toLowerCase();
@@ -153,7 +152,6 @@
             });
         }
 
-        // ฟังก์ชันสำหรับเรียงลำดับข้อมูล
         function sortData(data, sortAsc) {
             return data.sort((a, b) => {
                 const orderA = parseInt(a[0].replace(/[^0-9]/g, ''), 10);
@@ -162,20 +160,16 @@
             });
         }
 
-        // ดึงข้อมูลจากชีต "เพจ1" และ "เพจ2"
         Promise.all([fetchData(SHEET_NAME1), fetchData(SHEET_NAME2)])
             .then(results => {
-                // รวมข้อมูลจากทั้งสองชีต
                 const allData = [...results[0], ...results[1]];
                 displayData(allData);
 
-                // Event Listeners สำหรับการกรองข้อมูล
                 document.getElementById('filterOrder').addEventListener('input', () => displayData(filterData(allData)));
                 document.getElementById('filterName').addEventListener('input', () => displayData(filterData(allData)));
                 document.getElementById('filterPhone').addEventListener('input', () => displayData(filterData(allData)));
                 document.getElementById('filterStatus').addEventListener('change', () => displayData(filterData(allData)));
 
-                // Event Listeners สำหรับการเรียงลำดับข้อมูล
                 document.getElementById('sortAscBtn').addEventListener('click', () => displayData(sortData(filterData(allData), true)));
                 document.getElementById('sortDescBtn').addEventListener('click', () => displayData(sortData(filterData(allData), false)));
             });
