@@ -36,6 +36,22 @@
         .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
             width: 100%; /* ให้ชุดค้นหากินพื้นที่เต็มความกว้าง */
         }
+
+        /* กำหนดสีพื้นหลังให้กับปุ่มสถานะ */
+        .status-design { background-color: purple; color: white; } /* สีม่วง */
+        .status-pending { background-color: orange; color: white; } /* สีส้ม */
+        .status-confirm { background-color: blue; color: white; } /* สีน้ำเงิน */
+        .status-produce { background-color: #a52a2a; color: white; } /* สีน้ำตาล */
+        .status-cut { background-color: #8b0000; color: white; } /* สีน้ำตาลเข้ม */
+        .status-claim { background-color: #ffc000; } /* สีเหลืองเข้ม */
+        .status-deliver { background-color: green; color: white; } /* สีเขียว */
+        .status-cancel { background-color: red; color: white; } /* สีแดง */
+
+        /* เพิ่ม padding และ border-radius ให้กับปุ่ม */
+        select option { 
+            padding: 5px 10px; 
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body class="p-4">
@@ -54,14 +70,14 @@
         <label for="filterStatus" class="mr-2">สถานะ:</label>
         <select id="filterStatus" class="border border-gray-400 px-2 py-1 rounded mb-2">
             <option value="">ทั้งหมด</option>
-            <option value="ออกแบบ">ออกแบบ</option>
-            <option value="รอแก้แบบ">รอแก้แบบ</option>
-            <option value="คอนเฟิร์ม">คอนเฟิร์ม</option>
-            <option value="ผลิต">ผลิต</option>
-            <option value="ตัด">ตัด</option>
-            <option value="เคลม">เคลม</option>
-            <option value="จัดส่ง">จัดส่ง</option>
-            <option value="ยกเลิก">ยกเลิก</option>
+            <option value="ออกแบบ" class="status-design">ออกแบบ</option>
+            <option value="รอแก้แบบ" class="status-pending">รอแก้แบบ</option>
+            <option value="คอนเฟิร์ม" class="status-confirm">คอนเฟิร์ม</option>
+            <option value="ผลิต" class="status-produce">ผลิต</option> 
+            <option value="ตัด" class="status-cut">ตัด</option>
+            <option value="เคลม" class="status-claim">เคลม</option>
+            <option value="จัดส่ง" class="status-deliver">จัดส่ง</option>
+            <option value="ยกเลิก" class="status-cancel">ยกเลิก</option>
         </select>
 
         <button id="sortAscBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
@@ -122,14 +138,14 @@
 
                 const statusSelect = document.createElement('select');
                 statusSelect.innerHTML = `
-                    <option value="ออกแบบ" ${row[6] === 'ออกแบบ' ? 'selected' : ''}>ออกแบบ</option>
-                    <option value="รอแก้แบบ" ${row[6] === 'รอแก้แบบ' ? 'selected' : ''}>รอแก้แบบ</option>
-                    <option value="คอนเฟิร์ม" ${row[6] === 'คอนเฟิร์ม' ? 'selected' : ''}>คอนเฟิร์ม</option>
-                    <option value="ผลิต" ${row[6] === 'ผลิต' ? 'selected' : ''}>ผลิต</option>
-                    <option value="ตัด" ${row[6] === 'ตัด' ? 'selected' : ''}>ตัด</option>
-                    <option value="เคลม" ${row[6] === 'เคลม' ? 'selected' : ''}>เคลม</option>
-                    <option value="จัดส่ง" ${row[6] === 'จัดส่ง' ? 'selected' : ''}>จัดส่ง</option>
-                    <option value="ยกเลิก" ${row[6] === 'ยกเลิก' ? 'selected' : ''}>ยกเลิก</option>
+                    <option value="ออกแบบ" class="status-design" ${row[6] === 'ออกแบบ' ? 'selected' : ''}>ออกแบบ</option>
+                    <option value="รอแก้แบบ" class="status-pending" ${row[6] === 'รอแก้แบบ' ? 'selected' : ''}>รอแก้แบบ</option>
+                    <option value="คอนเฟิร์ม" class="status-confirm" ${row[6] === 'คอนเฟิร์ม' ? 'selected' : ''}>คอนเฟิร์ม</option>
+                    <option value="ผลิต" class="status-produce" ${row[6] === 'ผลิต' ? 'selected' : ''}>ผลิต</option>
+                    <option value="ตัด" class="status-cut" ${row[6] === 'ตัด' ? 'selected' : ''}>ตัด</option>
+                    <option value="เคลม" class="status-claim" ${row[6] === 'เคลม' ? 'selected' : ''}>เคลม</option>
+                    <option value="จัดส่ง" class="status-deliver" ${row[6] === 'จัดส่ง' ? 'selected' : ''}>จัดส่ง</option>
+                    <option value="ยกเลิก" class="status-cancel" ${row[6] === 'ยกเลิก' ? 'selected' : ''}>ยกเลิก</option>
                 `;
                 statusCell.appendChild(statusSelect);
 
