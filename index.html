@@ -29,10 +29,6 @@
             background-color: #ffffff; /* สีขาวสำหรับแถวคู่ */
         }
 
-        td:nth-child(6) { /* เลือกคอลัมน์ที่ 6 (สถานะ) */
-            color: red; 
-        }
-
         .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
             width: 300px; /* กำหนดความกว้างของชุดค้นหา */
             position: fixed; /* ให้ชุดค้นหาคงที่ */
@@ -66,34 +62,40 @@
     <h1 class="text-2xl font-bold mb-4">ข้อมูลออเดอร์</h1>
 
     <div class="search-container mb-4"> 
-        <label for="filterOrder" class="mr-2">เลขออเดอร์:</label>
-        <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded mb-2">
-
-        <label for="filterName" class="mr-2">ชื่อเฟส:</label>
-        <input type="text" id="filterName" class="border border-gray-400 px-2 py-1 rounded mb-2">
-
-        <label for="filterPhone" class="mr-2">เบอร์โทร:</label>
-        <input type="text" id="filterPhone" class="border border-gray-400 px-2 py-1 rounded mb-2">
-
-        <label for="filterStatus" class="mr-2">สถานะ:</label>
-        <select id="filterStatus" class="border border-gray-400 px-2 py-1 rounded mb-2">
-            <option value="">ทั้งหมด</option>
-            <option value="ออกแบบ" class="status-design">ออกแบบ</option>
-            <option value="รอแก้แบบ" class="status-pending">รอแก้แบบ</option>
-            <option value="คอนเฟิร์ม" class="status-confirm">คอนเฟิร์ม</option>
-            <option value="ผลิต" class="status-produce">ผลิต</option> 
-            <option value="ตัด" class="status-cut">ตัด</option>
-            <option value="เคลม" class="status-claim">เคลม</option>
-            <option value="จัดส่ง" class="status-deliver">จัดส่ง</option>
-            <option value="ยกเลิก" class="status-cancel">ยกเลิก</option>
-        </select>
-
-        <button id="sortAscBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-            เรียงจากเก่าสุด
-        </button>
-        <button id="sortDescBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            เรียงจากล่าสุด
-        </button>
+        <div>
+            <label for="filterOrder" class="mr-2">เลขออเดอร์:</label>
+            <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded mb-2">
+        </div>
+        <div>
+            <label for="filterName" class="mr-2">ชื่อเฟส:</label>
+            <input type="text" id="filterName" class="border border-gray-400 px-2 py-1 rounded mb-2">
+        </div>
+        <div>
+            <label for="filterPhone" class="mr-2">เบอร์โทร:</label>
+            <input type="text" id="filterPhone" class="border border-gray-400 px-2 py-1 rounded mb-2">
+        </div>
+        <div>
+            <label for="filterStatus" class="mr-2">สถานะ:</label>
+            <select id="filterStatus" class="border border-gray-400 px-2 py-1 rounded mb-2">
+                <option value="">ทั้งหมด</option>
+                <option value="ออกแบบ" class="status-design">ออกแบบ</option>
+                <option value="รอแก้แบบ" class="status-pending">รอแก้แบบ</option>
+                <option value="คอนเฟิร์ม" class="status-confirm">คอนเฟิร์ม</option>
+                <option value="ผลิต" class="status-produce">ผลิต</option> 
+                <option value="ตัด" class="status-cut">ตัด</option>
+                <option value="เคลม" class="status-claim">เคลม</option>
+                <option value="จัดส่ง" class="status-deliver">จัดส่ง</option>
+                <option value="ยกเลิก" class="status-cancel">ยกเลิก</option>
+            </select>
+        </div>
+        <div>
+            <button id="sortAscBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+                เรียงจากเก่าสุด
+            </button>
+            <button id="sortDescBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                เรียงจากล่าสุด
+            </button>
+        </div>
     </div>
 
     <div style="margin-left: 320px;"> 
@@ -115,7 +117,7 @@
     </div>
 
     <script>
-        const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; 
+        const SHEET_ID = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; // **ใส่ SHEET_ID ของคุณตรงนี้**
         const SHEET_NAME1 = 'เพจ1';
         const SHEET_NAME2 = 'เพจ2';
 
@@ -147,6 +149,7 @@
                 phoneCell.textContent = row[5]; 
 
                 const statusSelect = document.createElement('select');
+                statusSelect.classList.add(getStatusClass(row[6])); // เพิ่ม class เพื่อกำหนดสีพื้นหลัง
                 statusSelect.innerHTML = `
                     <option value="ออกแบบ" class="status-design" ${row[6] === 'ออกแบบ' ? 'selected' : ''}>ออกแบบ</option>
                     <option value="รอแก้แบบ" class="status-pending" ${row[6] === 'รอแก้แบบ' ? 'selected' : ''}>รอแก้แบบ</option>
@@ -161,6 +164,21 @@
 
                 trackingCell.textContent = row[20]; 
             });
+        }
+
+        // ฟังก์ชันสำหรับกำหนด class ให้กับช่องสถานะ
+        function getStatusClass(status) {
+            switch (status) {
+                case 'ออกแบบ': return 'status-design';
+                case 'รอแก้แบบ': return 'status-pending';
+                case 'คอนเฟิร์ม': return 'status-confirm';
+                case 'ผลิต': return 'status-produce';
+                case 'ตัด': return 'status-cut';
+                case 'เคลม': return 'status-claim';
+                case 'จัดส่ง': return 'status-deliver';
+                case 'ยกเลิก': return 'status-cancel';
+                default: return ''; 
+            }
         }
 
         function filterData(data) {
