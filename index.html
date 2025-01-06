@@ -6,33 +6,59 @@
     <title>ข้อมูลออเดอร์</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS สำหรับตกแต่งตารางและองค์ประกอบต่างๆ */
+        body {
+            background-color: #f8f8f8; /* สีเทาอ่อน */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
         }
+
+        table tbody tr:nth-child(odd) {
+            background-color: #f0f0f0; /* สีเทาอ่อน */
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #ffffff; /* สีขาว */
+        }
+
+        td:nth-child(6) { /* เลือกคอลัมน์ที่ 6 (สถานะ) */
+            color: red; 
+        }
+
+        .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
+            float: left;
+            width: 30%; /* ปรับขนาดตามต้องการ */
+        }
+
+        .data-container { /* กำหนด class ให้กับ div ที่บรรจุตาราง */
+            float: left;
+            width: 70%; /* ปรับขนาดตามต้องการ */
+        }
     </style>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="p-4">
     <h1 class="text-2xl font-bold mb-4">ข้อมูลออเดอร์</h1>
 
-    <div class="mb-4">
+    <div class="search-container mb-4">
         <label for="filterOrder" class="mr-2">เลขออเดอร์:</label>
-        <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded">
+        <input type="text" id="filterOrder" class="border border-gray-400 px-2 py-1 rounded mb-2">
 
-        <label for="filterName" class="ml-4 mr-2">ชื่อเฟส:</label>
-        <input type="text" id="filterName" class="border border-gray-400 px-2 py-1 rounded">
+        <label for="filterName" class="mr-2">ชื่อเฟส:</label>
+        <input type="text" id="filterName" class="border border-gray-400 px-2 py-1 rounded mb-2">
 
-        <label for="filterPhone" class="ml-4 mr-2">เบอร์โทร:</label>
-        <input type="text" id="filterPhone" class="border border-gray-400 px-2 py-1 rounded">
+        <label for="filterPhone" class="mr-2">เบอร์โทร:</label>
+        <input type="text" id="filterPhone" class="border border-gray-400 px-2 py-1 rounded mb-2">
 
-        <label for="filterStatus" class="ml-4 mr-2">สถานะ:</label>
-        <select id="filterStatus" class="border border-gray-400 px-2 py-1 rounded">
+        <label for="filterStatus" class="mr-2">สถานะ:</label>
+        <select id="filterStatus" class="border border-gray-400 px-2 py-1 rounded mb-2">
             <option value="">ทั้งหมด</option>
             <option value="ออกแบบ">ออกแบบ</option>
             <option value="รอแก้แบบ">รอแก้แบบ</option>
@@ -43,31 +69,31 @@
             <option value="จัดส่ง">จัดส่ง</option>
             <option value="ยกเลิก">ยกเลิก</option>
         </select>
-    </div>
 
-    <table id="orderTable">
-        <thead>
-            <tr>
-                <th>เลขออเดอร์</th>
-                <th>ชื่อสินค้า</th>
-                <th>ชื่อเฟส</th>
-                <th>ที่อยู่</th>
-                <th>เบอร์โทร</th>
-                <th>สถานะ</th>
-                <th>เลขพัสดุ</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-
-    <div class="mt-4">
         <button id="sortAscBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
             เรียงจากเก่าสุด
         </button>
         <button id="sortDescBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             เรียงจากล่าสุด
         </button>
+    </div>
+
+    <div class="data-container">
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>เลขออเดอร์</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>ชื่อเฟส</th>
+                    <th>ที่อยู่</th>
+                    <th>เบอร์โทร</th>
+                    <th>สถานะ</th>
+                    <th>เลขพัสดุ</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 
     <script>
