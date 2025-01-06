@@ -29,27 +29,20 @@
             background-color: #ffffff; /* สีขาวสำหรับแถวคู่ */
         }
 
+        td:nth-child(6) { /* เลือกคอลัมน์ที่ 6 (สถานะ) */
+            color: red; 
+        }
+
         .search-container { /* กำหนด class ให้กับ div ที่บรรจุเมนูการค้นหา */
-            width: 100%; /* ให้ชุดค้นหากินพื้นที่เต็มความกว้าง */
+            width: 300px; /* กำหนดความกว้างของชุดค้นหา */
             position: fixed; /* ให้ชุดค้นหาคงที่ */
-            top: 0; /* ให้ติดขอบบน */
-            left: 0; /* ให้ติดขอบซ้าย */
+            top: 80px; /* ระยะห่างจากด้านบน */
+            left: 20px; /* ระยะห่างจากด้านซ้าย */
             background-color: #f5f5f5; /* สีพื้นหลังเดียวกับ body */
             padding: 20px; /* ระยะห่างภายใน */
+            border-radius: 10px; /* ขอบมน */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* เงา */
             z-index: 10; /* ให้ชุดค้นหาอยู่บนสุด */
-            display: flex; /* จัดเรียง element ในแนวนอน */
-            flex-wrap: wrap; /* อนุญาตให้ element ขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ */
-            align-items: center; /* จัด element ให้อยู่กึ่งกลางในแนวตั้ง */
-        }
-
-        .search-container > div {
-            margin-bottom: 10px; /* ระยะห่างระหว่าง element */
-            margin-right: 10px; /* ระยะห่างระหว่าง element */
-        }
-
-        .search-container label {
-            margin-right: 5px; /* ระยะห่างระหว่าง label และ input */
         }
 
         /* กำหนดสีพื้นหลังให้กับปุ่มสถานะ */
@@ -109,7 +102,7 @@
         </div>
     </div>
 
-    <div style="margin-top: 160px;">  
+    <div style="margin-left: 320px;"> 
         <table id="orderTable">
             <thead>
                 <tr>
@@ -160,7 +153,6 @@
                 phoneCell.textContent = row[5]; 
 
                 const statusSelect = document.createElement('select');
-                statusSelect.classList.add(getStatusClass(row[6])); // เพิ่ม class เพื่อกำหนดสีพื้นหลัง
                 statusSelect.innerHTML = `
                     <option value="ออกแบบ" class="status-design" ${row[6] === 'ออกแบบ' ? 'selected' : ''}>ออกแบบ</option>
                     <option value="รอแก้แบบ" class="status-pending" ${row[6] === 'รอแก้แบบ' ? 'selected' : ''}>รอแก้แบบ</option>
@@ -175,21 +167,6 @@
 
                 trackingCell.textContent = row[20]; 
             });
-        }
-
-        // ฟังก์ชันสำหรับกำหนด class ให้กับช่องสถานะ
-        function getStatusClass(status) {
-            switch (status) {
-                case 'ออกแบบ': return 'status-design';
-                case 'รอแก้แบบ': return 'status-pending';
-                case 'คอนเฟิร์ม': return 'status-confirm';
-                case 'ผลิต': return 'status-produce';
-                case 'ตัด': return 'status-cut';
-                case 'เคลม': return 'status-claim';
-                case 'จัดส่ง': return 'status-deliver';
-                case 'ยกเลิก': return 'status-cancel';
-                default: return ''; 
-            }
         }
 
         function filterData(data) {
