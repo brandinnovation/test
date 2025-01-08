@@ -64,28 +64,37 @@
             const sheetNames = ['เพจ1', 'เพจ2']; // ชื่อชีตที่ต้องการค้นหา
 
             for (const sheetName of sheetNames) {
-                try {
-                    const response = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
-                    const data = await response.text();
-                    const jsonData = JSON.parse(data.substring(47).slice(0, -2));
-                    const rows = jsonData.table.rows;
+            try {
+            const response = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
+            const data = await response.text();
+            const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+            const rows = jsonData.table.rows;
 
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i].c;
-                        if (row && row[0] && row[0].v === orderNumber) {
-                            // พบเลขออเดอร์ที่ตรงกัน
-                            const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
-                            sheet.getRange(i + 2, 31).setValue(`=IMAGE("https://drive.google.com/uc?export=view&id=${imageId}")`); // คอลัมน์ AE คือคอลัมน์ที่ 31
-                            return true;
-                        }
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i].c;
+                if (row && row[0] && row[0].v === orderNumber) {
+                    // พบเลขออเดอร์ที่ตรงกัน
+                    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
+
+                    // ตรวจสอบว่ามีรูปภาพในคอลัมน์ AE หรือไม่
+                    const existingImage = sheet.getRange(i + 2, 31).getValue();
+                    let imageFormula = `=IMAGE("https://drive.google.com/uc?export=view&id=${imageId}")`;
+                    if (existingImage) {
+                        // ถ้ามีรูปอยู่แล้ว ให้ต่อ URL รูปภาพใหม่เข้าไป
+                        imageFormula = `${existingImage}, ${imageFormula}`;
                     }
-                } catch (error) {
-                    console.error(`Error processing sheet ${sheetName}:`, error);
+
+                    sheet.getRange(i + 2, 31).setValue(imageFormula); // คอลัมน์ AE คือคอลัมน์ที่ 31
+                    return true;
                 }
             }
-
-            return false; // ไม่พบเลขออเดอร์ที่ตรงกัน
+            } catch (error) {
+            console.error(`Error processing sheet ${sheetName}:`, error);
         }
+    }
+
+    return false; // ไม่พบเลขออเดอร์ที่ตรงกัน
+}
 
         // ฟังก์ชันสำหรับส่ง Flex Message
         function sendFlexMessage() {
