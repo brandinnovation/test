@@ -1,75 +1,37 @@
-<!DOCTYPE html>  
-<html lang="th">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>LINE LIFF Form</title>  
-    <style>  
-        body {  
-            font-family: Arial, sans-serif;  
-            text-align: center;  
-            padding: 20px;  
-        }  
-        h1 {  
-            font-size: 2em;  
-            color: #333;  
-        }  
-        input[type="text"], input[type="file"] {  
-            width: 80%;  
-            padding: 10px;  
-            margin: 10px 0;  
-            border: 1px solid #ccc;  
-            border-radius: 5px;  
-        }  
-        button {  
-            padding: 10px 20px;  
-            background-color: #4CAF50;  
-            color: white;  
-            border: none;  
-            border-radius: 5px;  
-            cursor: pointer;  
-            font-size: 1em;  
-        }  
-        button:hover {  
-            background-color: #45a049;  
-        }  
-        .message {  
-            margin-top: 20px;  
-            font-size: 1.2em;  
-            color: #333;  
-        }  
-    </style>  
-</head>  
-<body>  
-    <h1>แบบฟอร์มบันทึกข้อมูล</h1>  
-    <input type="text" id="orderNumber" placeholder="กรอกเลขออเดอร์" required>  
-    <input type="file" id="imageUpload" accept="image/*" required>  
-    <button onclick="submitForm()">บันทึกข้อมูล</button>  
-    <div class="message" id="message"></div>  
+<!DOCTYPE html>
+<html>
+<head>
+  <title>บันทึกรูปภาพออเดอร์</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>บันทึกรูปภาพออเดอร์</h1>
 
-    <script>  
-        function submitForm() {  
-            const orderNumber = document.getElementById('orderNumber').value;  
-            const imageUpload = document.getElementById('imageUpload').files[0];  
+    <form id="orderForm">
+      <div class="form-group">
+        <label for="orderNumber">เลขที่ออเดอร์:</label>
+        <input type="text" id="orderNumber" name="orderNumber" required>
+      </div>
 
-            if (!orderNumber || !imageUpload) {  
-                alert('กรุณากรอกเลขออเดอร์และอัพโหลดรูปภาพ');  
-                return;  
-            }  
+      <div class="form-group">
+        <label for="imageFile">รูปภาพ:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
+      </div>
 
-            const reader = new FileReader();  
-            reader.onloadend = function() {  
-                const imageUrl = reader.result;  
+      <button type="submit" id="submitButton">บันทึกข้อมูล</button>
+    </form>
 
-                google.script.run.withSuccessHandler(function(response) {  
-                    document.getElementById('message').innerText = 'บันทึกข้อมูลเรียบร้อย';  
-                    setTimeout(() => {  
-                        window.close();  
-                    }, 2000);  
-                }).saveImage(orderNumber, imageUrl);  
-            }  
-            reader.readAsDataURL(imageUpload);  
-        }  
-    </script>  
-</body>  
+    <div id="loadingMessage" style="display: none;">รอสักครู่ กำลังบันทึกข้อมูล...</div>
+    <div id="successMessage" style="display: none;">
+      บันทึกข้อมูลเรียบร้อย!
+      <button id="closeButton">ปิด</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
