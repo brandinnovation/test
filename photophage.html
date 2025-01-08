@@ -1,194 +1,84 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>บันทึกรูปภาพออเดอร์</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    #liffAppContent {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      width: 100%;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      margin-bottom: 15px;
-    }
-
-    button[type="submit"] {
-      background-color: #007bff;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    #message {
-      margin-top: 15px;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFF Form</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
-
 <body>
-  <div id="liffAppContent" style="display: none;">
-    <h1>บันทึกรูปภาพออเดอร์</h1>
-    <form id="orderForm">
-      <div>
-        <label for="orderNumber">เลขออเดอร์:</label>
-        <input type="text" id="orderNumber" name="orderNumber" required>
-      </div>
-      <div>
-        <label for="imageFile">รูปภาพ:</label>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*" capture="camera">
-      </div>
-      <button type="submit">บันทึกข้อมูล</button>
-    </form>
-    <div id="message"></div>
-  </div>
+    <div class="container">
+        <h1>บันทึกข้อมูล</h1>
+        <form id="form">
+            <label>เลขออเดอร์</label><br>
+            <input type="text" id="orderNumber" required><br><br>
+            <label>อัพโหลดรูปภาพ</label><br>
+            <input type="file" id="file" accept="image/*" required><br><br>
+            <button type="submit">บันทึก</button>
+        </form>
+        <p id="status"></p>
+    </div>
 
-  <script>
-    // 初始化 LIFF
-    liff.init({
-        liffId: '2006738214-149nvm0m' // เปลี่ยนเป็น LIFF ID ของคุณ
-      })
-      .then(() => {
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        }
-        document.getElementById('liffAppContent').style.display = 'block';
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-
-    // ฟังก์ชันสำหรับอัปโหลดรูปภาพไปยัง Google Drive
-    async function uploadImage(file, orderNumber) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('orderNumber', orderNumber); // ส่งเลขออเดอร์ไปด้วย
-
-      const response = await fetch('https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec', { // เปลี่ยนเป็น URL ของ Google Apps Script
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-      return data.id; // ส่งกลับ ID ของไฟล์
-    }
-
-    // ฟังก์ชันสำหรับบันทึกข้อมูลลง Google Sheets
-    async function saveData(orderNumber, imageId) {
-    const data = {
-        orderNumber: orderNumber,
-        imageId: imageId
-    };
-
-    try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec', { // เปลี่ยนเป็น URL ของ Google Apps Script
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        return response.ok;
-    } catch (error) {
-        console.error('Error saving data:', error);
-        document.getElementById('message').textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
-        return false;
-    }
-}
-
-    // ฟังก์ชันสำหรับส่ง Flex Message
-    function sendFlexMessage() {
-      liff.sendMessages([{
-          "type": "flex",
-          "altText": "บันทึกข้อมูลเรียบร้อยแล้ว",
-          "contents": {
-            "type": "bubble",
-            "body": {
-              "type": "box",
-              "layout": "vertical",
-              "contents": [{
-                "type": "text",
-                "text": "บันทึกข้อมูลเรียบร้อยแล้ว"
-              }]
+    <script>
+        liff.init({ liffId: '<YOUR_LIFF_ID>' }).then(() => {
+            if (!liff.isLoggedIn()) {
+                liff.login();
             }
-          }
-        }
-      ])
-        .then(() => {
-          liff.closeWindow();
-        })
-        .catch((err) => {
-          console.error(err);
         });
-    }
 
-    // Event Listener สำหรับการ submit แบบฟอร์ม
-    document.getElementById('orderForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-      const orderNumber = document.getElementById('orderNumber').value;
-      const imageFile = document.getElementById('imageFile').files[0];
+            const orderNumber = document.getElementById('orderNumber').value;
+            const file = document.getElementById('file').files[0];
+            const userId = liff.getContext().userId;
 
-      document.getElementById('message').textContent = 'กำลังบันทึกข้อมูล...';
+            const formData = new FormData();
+            formData.append('orderNumber', orderNumber);
+            formData.append('file', file);
+            formData.append('userId', userId);
 
-      try {
-        const imageId = await uploadImage(imageFile, orderNumber);
-        const isSaved = await saveData(orderNumber, imageId);
+            document.getElementById('status').innerText = 'กำลังบันทึก...';
 
-        if (isSaved) {
-          document.getElementById('message').textContent = 'บันทึกข้อมูลเรียบร้อย';
-          sendFlexMessage();
-        } else {
-          document.getElementById('message').textContent = 'ไม่พบเลขออเดอร์ที่ตรงกัน';
-        }
-      } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล:', error);
-        document.getElementById('message').textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
-      }
-    });
-  </script>
+            const response = await fetch('<https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec>', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('status').innerText = 'บันทึกเรียบร้อย!';
+            } else {
+                document.getElementById('status').innerText = 'เกิดข้อผิดพลาด: ' + result.message;
+            }
+        });
+    </script>
 </body>
 </html>
