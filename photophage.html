@@ -113,21 +113,31 @@
 
     // ฟังก์ชันสำหรับบันทึกข้อมูลลง Google Sheets
     async function saveData(orderNumber, imageId) {
-      const data = {
+    const data = {
         orderNumber: orderNumber,
         imageId: imageId
-      };
+    };
 
-      const response = await fetch('https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec', { // เปลี่ยนเป็น URL ของ Google Apps Script
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+    try {
+        const response = await fetch('YOUR_SAVE_SCRIPT_URL', { // เปลี่ยนเป็น URL ของ Google Apps Script
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
 
-      return response.ok;
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        return response.ok;
+    } catch (error) {
+        console.error('Error saving data:', error);
+        document.getElementById('message').textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+        return false;
     }
+}
 
     // ฟังก์ชันสำหรับส่ง Flex Message
     function sendFlexMessage() {
