@@ -47,7 +47,8 @@
     </div>
 
     <script>
-        liff.init({ liffId: '<YOUR_LIFF_ID>' }).then(() => {
+        // เริ่มต้น LIFF
+        liff.init({ liffId: '<2006738214-149nvm0m>' }).then(() => {
             if (!liff.isLoggedIn()) {
                 liff.login();
             }
@@ -56,27 +57,38 @@
         document.getElementById('form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // รับค่าเลขออเดอร์และไฟล์จากฟอร์ม
             const orderNumber = document.getElementById('orderNumber').value;
             const file = document.getElementById('file').files[0];
-            const userId = liff.getContext().userId;
 
+            if (!orderNumber || !file) {
+                alert('กรุณากรอกเลขออเดอร์และอัพโหลดรูปภาพ');
+                return;
+            }
+
+            // ดึง userId จาก LIFF
+            const userId = await liff.getProfile().then(profile => profile.userId);
+
+            // เตรียมข้อมูลสำหรับส่งไปยัง Google Apps Script
             const formData = new FormData();
             formData.append('orderNumber', orderNumber);
             formData.append('file', file);
             formData.append('userId', userId);
 
-            document.getElementById('status').innerText = 'กำลังบันทึก...';
+            document.getElementById('status').innerText = 'กำลังบันทึกข้อมูล...';
 
-            const response = await fetch('<https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec>', {
+            // ส่งข้อมูลไปยัง Google Apps Script
+            const response = await fetch('<YOUR_GOOGLE_APP_SCRIPT_URL>', {
                 method: 'POST',
                 body: formData
             });
 
             const result = await response.json();
+
             if (result.success) {
-                document.getElementById('status').innerText = 'บันทึกเรียบร้อย!';
+                document.getElementById('status').innerText = 'บันทึกข้อมูลเรียบร้อย!';
             } else {
-                document.getElementById('status').innerText = 'เกิดข้อผิดพลาด: ' + result.message;
+                document.getElementById('status').innerText = `เกิดข้อผิดพลาด: ${result.message}`;
             }
         });
     </script>
