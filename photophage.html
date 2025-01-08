@@ -4,9 +4,67 @@
   <title>บันทึกรูปภาพออเดอร์</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      /* สีน้ำเงิน */
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    button:hover {
+      background-color: #0069d9;
+      /* สีน้ำเงินเข้มขึ้นเมื่อ hover */
+    }
+  </style>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
+
 <body>
   <div class="container">
     <h1>บันทึกรูปภาพออเดอร์</h1>
@@ -32,109 +90,110 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
-async function initLIFF() {
-  try {
-    await liff.init({
-      liffId: "2006738214-149nvm0m" // ใส่ LIFF ID ของคุณตรงนี้ 
-    });
-    initializeApp();
-  } catch (error) {
-    console.error("LIFF initialization failed:", error);
-  }
-}
-
-function initializeApp() {
-  const form = document.getElementById("orderForm");
-  const loadingMessage = document.getElementById("loadingMessage");
-  const successMessage = document.getElementById("successMessage");
-  const closeButton = document.getElementById("closeButton");
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const orderNumber = document.getElementById("orderNumber").value;
-    const imageFile = document.getElementById("imageFile").files[0];
-
-    if (!orderNumber || !imageFile) {
-      alert("กรุณากรอกเลขที่ออเดอร์และอัพโหลดรูปภาพ");
-      return;
+  <script>
+    async function initLIFF() {
+      try {
+        await liff.init({
+          liffId: "2006738214-149nvm0m" // ใส่ LIFF ID ของคุณตรงนี้ 
+        });
+        initializeApp();
+      } catch (error) {
+        console.error("LIFF initialization failed:", error);
+      }
     }
 
-    loadingMessage.style.display = "block";
-    form.style.display = "none";
+    function initializeApp() {
+      const form = document.getElementById("orderForm");
+      const loadingMessage = document.getElementById("loadingMessage");
+      const successMessage = document.getElementById("successMessage");
+      const closeButton = document.getElementById("closeButton");
 
-    try {
-      const imageData = await readFileAsDataURL(imageFile);
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const orderNumber = document.getElementById("orderNumber").value;
+        const imageFile = document.getElementById("imageFile").files[0];
 
-      // เรียกใช้ฟังก์ชัน Apps Script
-      const url = "https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec"; // URL ของ Apps Script ที่ deploy
-      fetch(`${url}?orderNumber=${orderNumber}&imageData=${imageData}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            sendFlexMessage(liff.getProfile().displayName);
-            successMessage.style.display = "block";
-            loadingMessage.style.display = "none";
-          } else {
-            throw new Error("Apps Script failed");
-          }
-        })
-        .catch(error => {
+        if (!orderNumber || !imageFile) {
+          alert("กรุณากรอกเลขที่ออเดอร์และอัพโหลดรูปภาพ");
+          return;
+        }
+
+        loadingMessage.style.display = "block";
+        form.style.display = "none";
+
+        try {
+          const imageData = await readFileAsDataURL(imageFile);
+
+          // เรียกใช้ฟังก์ชัน Apps Script
+          const url = "https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec"; // URL ของ Apps Script ที่ deploy
+          fetch(`${url}?orderNumber=${orderNumber}&imageData=${imageData}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                sendFlexMessage(liff.getProfile().displayName);
+                successMessage.style.display = "block";
+                loadingMessage.style.display = "none";
+              } else {
+                throw new Error("Apps Script failed");
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+              loadingMessage.style.display = "none";
+              form.style.display = "block";
+            });
+
+        } catch (error) {
           console.error("Error:", error);
           alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
           loadingMessage.style.display = "none";
           form.style.display = "block";
-        });
+        }
+      });
 
-    } catch (error) {
-      console.error("Error:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-      loadingMessage.style.display = "none";
-      form.style.display = "block";
+      closeButton.addEventListener("click", () => {
+        liff.closeWindow();
+      });
     }
-  });
 
-  closeButton.addEventListener("click", () => {
-    liff.closeWindow();
-  });
-}
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
-function readFileAsDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function sendFlexMessage(displayName) {
-  const flexMessage = {
-    "type": "flex",
-    "altText": "รูปภาพได้รับการบันทึกแล้ว",
-    "contents": {
-      "type": "bubble",
-      "body": {
-        "type": "box",
-        "layout": "vertical",
-        "contents": [
-          {
-            "type": "text",
-            "text": `ขอบคุณ คุณ ${displayName}`,
-            "weight": "bold",
-            "size": "xl"
-          },
-          {
-            "type": "text",
-            "text": "รูปภาพได้รับการบันทึกแล้ว"
+    async function sendFlexMessage(displayName) {
+      const flexMessage = {
+        "type": "flex",
+        "altText": "รูปภาพได้รับการบันทึกแล้ว",
+        "contents": {
+          "type": "bubble",
+          "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "text",
+                "text": `ขอบคุณ คุณ ${displayName}`,
+                "weight": "bold",
+                "size": "xl"
+              },
+              {
+                "type": "text",
+                "text": "รูปภาพได้รับการบันทึกแล้ว"
+              }
+            ]
           }
-        ]
-      }
+        }
+      };
+      await liff.sendMessages([flexMessage]);
     }
-  };
-  await liff.sendMessages([flexMessage]);
-}
 
-initLIFF();
+    initLIFF();
+  </script>
+</body>
+</html>
