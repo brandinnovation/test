@@ -5,80 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #f8f9fa;
-      flex-direction: column; /* จัดเรียงเนื้อหาในแนวตั้ง */
-      gap: 10px; /* ระยะห่างระหว่าง element */
-    }
-
-    .container {
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 90%; /* ปรับความกว้างของ container */
-      max-width: 400px; /* กำหนดความกว้างสูงสุด */
-    }
-
-    h1 {
-      font-size: 2em;
-      margin-bottom: 20px;
-      color: #343a40;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #495057;
-    }
-
-    input[type="text"],
-    input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ced4da;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: #ffffff;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 18px;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #0062cc;
-    }
-
-    #loading,
-    #success {
-      margin-top: 15px;
-      font-size: 18px;
-      color: #28a745;
-    }
+    /* CSS สำหรับจัดรูปแบบ (ใส่ CSS ของคุณที่นี่) */
   </style>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
-
 <body>
   <div class="container">
     <h1>อัพโหลดรูปภาพ</h1>
@@ -97,105 +27,89 @@
     <div id="success" style="display: none;">อัพโหลดสำเร็จ!</div>
   </div>
   <script>
-    // Function to initialize LIFF
     async function initLIFF() {
-      try {
-        await liff.init({
-          liffId: "2006738214-149nvm0m"
-        });
-        // Start the app
-        initializeApp();
-      } catch (error) {
-        console.error('LIFF initialization failed: ', error);
-      }
+  try {
+    await liff.init({
+      liffId: "2006738214-149nvm0m"
+    });
+    initializeApp();
+  } catch (error) {
+    console.error('LIFF initialization failed: ', error);
+  }
+}
+
+function initializeApp() {
+  const uploadForm = document.getElementById('uploadForm');
+  const loadingMessage = document.getElementById('loading');
+  const successMessage = document.getElementById('success');
+
+  uploadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const orderNumber = document.getElementById('orderNumber').value;
+    const imageFile = document.getElementById('imageFile').files[0];
+
+    if (!orderNumber || !imageFile) {
+      alert('กรุณากรอกเลขที่ออเดอร์และเลือกรูปภาพ');
+      return;
     }
 
-    function initializeApp() {
-      // Get the elements from the HTML
-      const uploadForm = document.getElementById('uploadForm');
-      const loadingMessage = document.getElementById('loading');
-      const successMessage = document.getElementById('success');
+    loadingMessage.style.display = 'block';
+    uploadForm.style.display = 'none';
 
-      // Add an event listener to the form for submission
-      uploadForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+    try {
+      const imageData = await readFileAsDataURL(imageFile);
+      await uploadImageToDrive(orderNumber, imageData);
+      successMessage.style.display = 'block';
+      loadingMessage.style.display = 'none';
+    } catch (error) {
+      console.error('Error uploading image: ', error);
+      alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ');
+      loadingMessage.style.display = 'none';
+      uploadForm.style.display = 'block';
+    }
+  });
+}
 
-        // Get the values from the form
-        const orderNumber = document.getElementById('orderNumber').value;
-        const imageFile = document.getElementById('imageFile').files[0];
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-        // Check if the required fields are filled
-        if (!orderNumber || !imageFile) {
-          alert('กรุณากรอกเลขที่ออเดอร์และเลือกรูปภาพ');
-          return;
-        }
+async function uploadImageToDrive(orderNumber, imageData) {
+  const uploadUrl = 'YOUR_APPS_SCRIPT_URL'; // Replace with your Apps Script URL
 
-        // Show the loading message
-        loadingMessage.style.display = 'block';
-        uploadForm.style.display = 'none';
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fileName: orderNumber, // ส่งชื่อไฟล์ที่ต้องการ
+        imageData: imageData
+      })
+    });
 
-        try {
-          // Read the image file as a data URL
-          const imageData = await readFileAsDataURL(imageFile);
-
-          // Upload the image to Google Drive
-          await uploadImageToDrive(orderNumber, imageData);
-
-          // Show the success message
-          successMessage.style.display = 'block';
-          loadingMessage.style.display = 'none';
-        } catch (error) {
-          console.error('Error uploading image: ', error);
-          alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ');
-          loadingMessage.style.display = 'none';
-          uploadForm.style.display = 'block';
-        }
-      });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
 
-    // Function to read the image file as a data URL
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error('Image upload failed');
     }
+  } catch (error) {
+    console.error('Error uploading image: ', error);
+    throw error;
+  }
+}
 
-    // Function to upload the image to Google Drive
-    async function uploadImageToDrive(orderNumber, imageData) {
-      // Replace with your actual Apps Script URL
-      const uploadUrl = 'https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec';
-
-      try {
-        const response = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            orderNumber: orderNumber,
-            imageData: imageData
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error('Image upload failed');
-        }
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-        throw error;
-      }
-    }
-
-    // Initialize LIFF when the page loads
-    initLIFF();
+initLIFF();
+    // JavaScript สำหรับจัดการการทำงาน (ใส่ JavaScript ของคุณที่นี่)
   </script>
 </body>
 </html>
