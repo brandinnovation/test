@@ -1,189 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>อัพโหลดรูปภาพ</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* CSS สำหรับจัดรูปแบบ (ใส่ CSS ของคุณที่นี่) */
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #f8f9fa;
-      flex-direction: column;
-      /* จัดเรียงเนื้อหาในแนวตั้ง */
-      gap: 10px;
-      /* ระยะห่างระหว่าง element */
-    }
+<!DOCTYPE html>  
+<html lang="th">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>LINE LIFF Form</title>  
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script> <!-- Include LINE LIFF SDK -->  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            text-align: center;  
+            padding: 20px;  
+            background-color: #f4f4f4; /* สีพื้นหลัง */  
+        }  
+        h1 {  
+            font-size: 2.5em; /* ขนาดข้อความใหญ่ */  
+            color: #333; /* สีข้อความ */  
+            margin-bottom: 20px; /* ช่องว่างด้านล่าง */  
+        }  
+        input[type="text"], input[type="file"] {  
+            width: 80%; /* ความกว้างของช่องกรอกข้อมูล */  
+            padding: 10px; /* ช่องว่างภายใน */  
+            margin: 10px 0; /* ช่องว่างด้านบนและล่าง */  
+            border: 1px solid #ccc; /* เส้นขอบ */  
+            border-radius: 5px; /* มุมโค้ง */  
+            font-size: 1em; /* ขนาดข้อความ */  
+        }  
+        button {  
+            padding: 10px 20px; /* ช่องว่างภายในปุ่ม */  
+            background-color: #4CAF50; /* สีพื้นหลังปุ่ม */  
+            color: white; /* สีข้อความในปุ่ม */  
+            border: none; /* ไม่มีเส้นขอบ */  
+            border-radius: 5px; /* มุมโค้ง */  
+            cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ที่ปุ่ม */  
+            font-size: 1.2em; /* ขนาดข้อความในปุ่ม */  
+            margin-top: 20px; /* ช่องว่างด้านบน */  
+        }  
+        button:hover {  
+            background-color: #45a049; /* สีพื้นหลังเมื่อชี้ที่ปุ่ม */  
+        }  
+        .message {  
+            margin-top: 20px; /* ช่องว่างด้านบน */  
+            font-size: 1.2em; /* ขนาดข้อความ */  
+            color: #333; /* สีข้อความ */  
+        }  
+    </style>  
+</head>  
+<body>  
+    <h1>แบบฟอร์มบันทึกข้อมูล</h1>  
+    <input type="text" id="orderNumber" placeholder="กรอกเลขออเดอร์" required>  
+    <input type="file" id="imageUpload" accept="image/*" required>  
+    <button onclick="submitForm()">บันทึกข้อมูล</button>  
+    <div class="message" id="message"></div>  
 
-    .container {
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 90%;
-      /* ปรับความกว้างของ container */
-      max-width: 400px;
-      /* กำหนดความกว้างสูงสุด */
-    }
+    <script>  
+        // Initialize LIFF  
+        liff.init({ liffId: '2006738214-149nvm0m' }, () => {  
+            console.log('LIFF initialized');  
+        }, err => {  
+            console.error('LIFF initialization failed', err);  
+        });  
 
-    h1 {
-      font-size: 2em;
-      margin-bottom: 20px;
-      color: #343a40;
-    }
+        function submitForm() {  
+            const orderNumber = document.getElementById('orderNumber').value;  
+            const imageUpload = document.getElementById('imageUpload').files[0];  
 
-    .form-group {
-      margin-bottom: 15px;
-      text-align: left;
-    }
+            if (!orderNumber || !imageUpload) {  
+                alert('กรุณากรอกเลขออเดอร์และอัพโหลดรูปภาพ');  
+                return;  
+            }  
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #495057;
-    }
+            const reader = new FileReader();  
+            reader.onloadend = function() {  
+                const imageUrl = reader.result;  
 
-    input[type="text"],
-    input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ced4da;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 16px;
-    }
+                document.getElementById('message').innerText = 'รอสักครู่ กำลังบันทึกข้อมูล...';  
 
-    button {
-      background-color: #007bff;
-      color: #ffffff;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 18px;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #0062cc;
-    }
-
-    #loading,
-    #success {
-      margin-top: 15px;
-      font-size: 18px;
-      color: #28a745;
-    }
-  </style>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-</head>
-
-<body>
-  <div class="container">
-    <h1>อัพโหลดรูปภาพ</h1>
-    <form id="uploadForm">
-      <div class="form-group">
-        <label for="orderNumber">เลขที่ออเดอร์:</label>
-        <input type="text" id="orderNumber" name="orderNumber" required>
-      </div>
-      <div class="form-group">
-        <label for="imageFile">รูปภาพ:</label>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
-      </div>
-      <button type="submit">อัพโหลด</button>
-    </form>
-    <div id="loading" style="display: none;">กำลังอัพโหลด...</div>
-    <div id="success" style="display: none;">อัพโหลดสำเร็จ!</div>
-  </div>
-  <script>
-    async function initLIFF() {
-      try {
-        await liff.init({
-          liffId: "2006738214-149nvm0m" // ใส่ LIFF ID ของคุณที่นี่
-        });
-        initializeApp();
-      } catch (error) {
-        console.error('LIFF initialization failed: ', error);
-      }
-    }
-
-    function initializeApp() {
-      const uploadForm = document.getElementById('uploadForm');
-      const loadingMessage = document.getElementById('loading');
-      const successMessage = document.getElementById('success');
-
-      uploadForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const orderNumber = document.getElementById('orderNumber').value;
-        const imageFile = document.getElementById('imageFile').files[0];
-
-        if (!orderNumber || !imageFile) {
-          alert('กรุณากรอกเลขที่ออเดอร์และเลือกรูปภาพ');
-          return;
-        }
-
-        loadingMessage.style.display = 'block';
-        uploadForm.style.display = 'none';
-
-        try {
-          const imageData = await readFileAsDataURL(imageFile);
-          await uploadImageToDrive(orderNumber, imageData);
-          successMessage.style.display = 'block';
-          loadingMessage.style.display = 'none';
-        } catch (error) {
-          console.error('Error uploading image: ', error);
-          alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ');
-          loadingMessage.style.display = 'none';
-          uploadForm.style.display = 'block';
-        }
-      });
-    }
-
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function uploadImageToDrive(orderNumber, imageData) {
-      const uploadUrl = 'https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec'; // Replace with your Apps Script URL
-
-      try {
-        const response = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fileName: orderNumber, // ส่งชื่อไฟล์ที่ต้องการ
-            imageData: imageData
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error('Image upload failed');
-        }
-      } catch (error) {
-        console.error('Error uploading image: ', error);
-        throw error;
-      }
-    }
-
-    initLIFF();
-  </script>
-</body>
+                google.script.run.withSuccessHandler(function(response) {  
+                    document.getElementById('message').innerText = 'บันทึกข้อมูลเรียบร้อย';  
+                    setTimeout(() => {  
+                        window.close();  
+                    }, 2000);  
+                }).saveImage(orderNumber, imageUrl);  
+            }  
+            reader.readAsDataURL(imageUpload);  
+        }  
+    </script>  
+</body>  
 </html>
