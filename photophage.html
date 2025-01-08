@@ -3,63 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFF Form</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <title>แบบฟอร์มบันทึกข้อมูล</title>
     <style>
+        /* จัดการฟอนต์และพื้นฐาน */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f7f7f7;
-            padding: 20px;
+            font-family: Arial, sans-serif; /* ฟอนต์สมัยใหม่ */
+            background-color: #f9f9f9; /* สีพื้นหลังแบบอ่อน */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center; /* จัดกึ่งกลางแนวนอน */
+            align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+            height: 100vh; /* ความสูงเต็มหน้าจอ */
         }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: auto;
+
+        /* กล่องฟอร์ม */
+        .form-container {
+            background-color: #ffffff; /* สีพื้นหลังฟอร์ม */
+            padding: 30px; /* ระยะห่างภายใน */
+            border-radius: 15px; /* มุมโค้งมน */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* เงา */
+            max-width: 500px; /* ขนาดสูงสุดของฟอร์ม */
+            width: 90%; /* รองรับหน้าจอเล็ก */
         }
+
+        /* หัวข้อใหญ่ */
+        h1 {
+            font-size: 28px; /* ขนาดใหญ่ */
+            text-align: center; /* จัดกึ่งกลาง */
+            color: #333; /* สีเข้ม */
+            margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+        }
+
+        /* ป้ายกำกับ */
+        label {
+            font-size: 18px; /* ขนาดตัวหนังสือ */
+            color: #555; /* สีเทาเข้ม */
+            display: block; /* จัดเต็มบรรทัด */
+            margin-bottom: 8px; /* ระยะห่างจากช่องกรอก */
+        }
+
+        /* ช่องกรอกข้อมูล */
+        input[type="text"],
+        input[type="file"] {
+            width: 100%; /* ความกว้างเต็มบรรทัด */
+            padding: 12px; /* ระยะห่างในช่อง */
+            font-size: 16px; /* ขนาดตัวหนังสือ */
+            border: 1px solid #ddd; /* ขอบเทาอ่อน */
+            border-radius: 8px; /* มุมโค้งมน */
+            margin-bottom: 20px; /* ระยะห่างระหว่างช่อง */
+            box-sizing: border-box; /* ไม่ให้ขยายเกินขอบ */
+        }
+
+        /* ปุ่ม */
         button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            width: 100%; /* ปุ่มเต็มบรรทัด */
+            padding: 15px; /* ความสูงปุ่ม */
+            background-color: #4CAF50; /* สีเขียว */
+            color: #ffffff; /* สีตัวอักษร */
+            border: none; /* ไม่มีขอบ */
+            border-radius: 10px; /* มุมโค้งมน */
+            font-size: 18px; /* ขนาดตัวหนังสือ */
+            font-weight: bold; /* ตัวหนา */
+            cursor: pointer; /* เปลี่ยนเป็นรูปมือเมื่อชี้ */
+            transition: background-color 0.3s; /* เพิ่มเอฟเฟกต์การเปลี่ยนสี */
         }
+
+        /* ปุ่มเมื่อชี้เมาส์ */
         button:hover {
-            background-color: #45a049;
+            background-color: #45a049; /* สีเขียวเข้ม */
+        }
+
+        /* ข้อความสถานะ */
+        #status {
+            font-size: 16px; /* ขนาดตัวหนังสือ */
+            color: #555; /* สีข้อความ */
+            text-align: center; /* จัดข้อความกลาง */
+            margin-top: 15px; /* ระยะห่างจากปุ่ม */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>บันทึกข้อมูล</h1>
+    <!-- กล่องฟอร์ม -->
+    <div class="form-container">
+        <!-- หัวข้อ -->
+        <h1>บันทึกข้อมูลของคุณ</h1>
+        <!-- แบบฟอร์ม -->
         <form id="form">
-            <label>เลขออเดอร์</label><br>
-            <input type="text" id="orderNumber" required><br><br>
-            <label>อัพโหลดรูปภาพ</label><br>
-            <input type="file" id="file" accept="image/*" required><br><br>
-            <button type="submit">บันทึก</button>
+            <!-- ป้ายกำกับและช่องกรอกเลขออเดอร์ -->
+            <label for="orderNumber">กรอกเลขออเดอร์</label>
+            <input type="text" id="orderNumber" placeholder="ระบุเลขออเดอร์" required>
+
+            <!-- ป้ายกำกับและช่องอัพโหลดรูป -->
+            <label for="file">อัพโหลดรูปภาพ</label>
+            <input type="file" id="file" accept="image/*" required>
+
+            <!-- ปุ่มบันทึก -->
+            <button type="submit">บันทึกข้อมูล</button>
         </form>
+
+        <!-- ข้อความสถานะ -->
         <p id="status"></p>
     </div>
 
     <script>
-        // เริ่มต้น LIFF
-        liff.init({ liffId: '<2006738214-149nvm0m>' }).then(() => {
+        // ฟังก์ชันเริ่มต้น LIFF
+        liff.init({ liffId: '<YOUR_LIFF_ID>' }).then(() => {
             if (!liff.isLoggedIn()) {
-                liff.login();
+                liff.login(); // ถ้ายังไม่ได้ล็อกอิน ให้ล็อกอิน
             }
         });
 
+        // จัดการเมื่อฟอร์มถูกส่ง
         document.getElementById('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // รับค่าเลขออเดอร์และไฟล์จากฟอร์ม
-            const orderNumber = document.getElementById('orderNumber').value;
-            const file = document.getElementById('file').files[0];
+            e.preventDefault(); // ป้องกันการรีเฟรชหน้า
+            const orderNumber = document.getElementById('orderNumber').value; // รับค่าเลขออเดอร์
+            const file = document.getElementById('file').files[0]; // รับไฟล์ที่อัพโหลด
 
             if (!orderNumber || !file) {
                 alert('กรุณากรอกเลขออเดอร์และอัพโหลดรูปภาพ');
@@ -69,12 +128,13 @@
             // ดึง userId จาก LIFF
             const userId = await liff.getProfile().then(profile => profile.userId);
 
-            // เตรียมข้อมูลสำหรับส่งไปยัง Google Apps Script
+            // เตรียมข้อมูลสำหรับส่งไป Google Apps Script
             const formData = new FormData();
             formData.append('orderNumber', orderNumber);
             formData.append('file', file);
             formData.append('userId', userId);
 
+            // แสดงข้อความสถานะ
             document.getElementById('status').innerText = 'กำลังบันทึกข้อมูล...';
 
             // ส่งข้อมูลไปยัง Google Apps Script
