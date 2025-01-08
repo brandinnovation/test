@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>บันทึกรูปภาพออเดอร์</title>
+  <title>อัพโหลดรูปภาพ</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -11,55 +11,69 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background-color: #f0f0f0;
+      background-color: #f8f9fa;
+      flex-direction: column; /* จัดเรียงเนื้อหาในแนวตั้ง */
+      gap: 10px; /* ระยะห่างระหว่าง element */
     }
 
     .container {
-      background-color: #fff;
-      padding: 30px;
+      background-color: #ffffff;
+      padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       text-align: center;
+      width: 90%; /* ปรับความกว้างของ container */
+      max-width: 400px; /* กำหนดความกว้างสูงสุด */
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 2em;
       margin-bottom: 20px;
+      color: #343a40;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+      text-align: left;
     }
 
     label {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
+      color: #495057;
     }
 
     input[type="text"],
     input[type="file"] {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #ced4da;
       border-radius: 5px;
       box-sizing: border-box;
+      font-size: 16px;
     }
 
     button {
       background-color: #007bff;
-      /* สีน้ำเงิน */
-      color: #fff;
+      color: #ffffff;
       padding: 12px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 18px;
+      width: 100%;
     }
 
     button:hover {
-      background-color: #0069d9;
-      /* สีน้ำเงินเข้มขึ้นเมื่อ hover */
+      background-color: #0062cc;
+    }
+
+    #loading,
+    #success {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #28a745;
     }
   </style>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -67,96 +81,79 @@
 
 <body>
   <div class="container">
-    <h1>บันทึกรูปภาพออเดอร์</h1>
-
-    <form id="orderForm">
+    <h1>อัพโหลดรูปภาพ</h1>
+    <form id="uploadForm">
       <div class="form-group">
         <label for="orderNumber">เลขที่ออเดอร์:</label>
         <input type="text" id="orderNumber" name="orderNumber" required>
       </div>
-
       <div class="form-group">
         <label for="imageFile">รูปภาพ:</label>
         <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
       </div>
-
-      <button type="submit" id="submitButton">บันทึกข้อมูล</button>
+      <button type="submit">อัพโหลด</button>
     </form>
-
-    <div id="loadingMessage" style="display: none;">รอสักครู่ กำลังบันทึกข้อมูล...</div>
-    <div id="successMessage" style="display: none;">
-      บันทึกข้อมูลเรียบร้อย!
-      <button id="closeButton">ปิด</button>
-    </div>
+    <div id="loading" style="display: none;">กำลังอัพโหลด...</div>
+    <div id="success" style="display: none;">อัพโหลดสำเร็จ!</div>
   </div>
-
   <script>
+    // Function to initialize LIFF
     async function initLIFF() {
       try {
         await liff.init({
-          liffId: "2006738214-149nvm0m" // ใส่ LIFF ID ของคุณตรงนี้ 
+          liffId: "2006738214-149nvm0m"
         });
+        // Start the app
         initializeApp();
       } catch (error) {
-        console.error("LIFF initialization failed:", error);
+        console.error('LIFF initialization failed: ', error);
       }
     }
 
     function initializeApp() {
-      const form = document.getElementById("orderForm");
-      const loadingMessage = document.getElementById("loadingMessage");
-      const successMessage = document.getElementById("successMessage");
-      const closeButton = document.getElementById("closeButton");
+      // Get the elements from the HTML
+      const uploadForm = document.getElementById('uploadForm');
+      const loadingMessage = document.getElementById('loading');
+      const successMessage = document.getElementById('success');
 
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const orderNumber = document.getElementById("orderNumber").value;
-        const imageFile = document.getElementById("imageFile").files[0];
+      // Add an event listener to the form for submission
+      uploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
 
+        // Get the values from the form
+        const orderNumber = document.getElementById('orderNumber').value;
+        const imageFile = document.getElementById('imageFile').files[0];
+
+        // Check if the required fields are filled
         if (!orderNumber || !imageFile) {
-          alert("กรุณากรอกเลขที่ออเดอร์และอัพโหลดรูปภาพ");
+          alert('กรุณากรอกเลขที่ออเดอร์และเลือกรูปภาพ');
           return;
         }
 
-        loadingMessage.style.display = "block";
-        form.style.display = "none";
+        // Show the loading message
+        loadingMessage.style.display = 'block';
+        uploadForm.style.display = 'none';
 
         try {
+          // Read the image file as a data URL
           const imageData = await readFileAsDataURL(imageFile);
 
-          // เรียกใช้ฟังก์ชัน Apps Script
-          const url = "https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec"; // URL ของ Apps Script ที่ deploy
-          fetch(`${url}?orderNumber=${orderNumber}&imageData=${imageData}`)
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                sendFlexMessage(liff.getProfile().displayName);
-                successMessage.style.display = "block";
-                loadingMessage.style.display = "none";
-              } else {
-                throw new Error("Apps Script failed");
-              }
-            })
-            .catch(error => {
-              console.error("Error:", error);
-              alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-              loadingMessage.style.display = "none";
-              form.style.display = "block";
-            });
+          // Upload the image to Google Drive
+          await uploadImageToDrive(orderNumber, imageData);
 
+          // Show the success message
+          successMessage.style.display = 'block';
+          loadingMessage.style.display = 'none';
         } catch (error) {
-          console.error("Error:", error);
-          alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-          loadingMessage.style.display = "none";
-          form.style.display = "block";
+          console.error('Error uploading image: ', error);
+          alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ');
+          loadingMessage.style.display = 'none';
+          uploadForm.style.display = 'block';
         }
-      });
-
-      closeButton.addEventListener("click", () => {
-        liff.closeWindow();
       });
     }
 
+    // Function to read the image file as a data URL
     function readFileAsDataURL(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -166,33 +163,38 @@
       });
     }
 
-    async function sendFlexMessage(displayName) {
-      const flexMessage = {
-        "type": "flex",
-        "altText": "รูปภาพได้รับการบันทึกแล้ว",
-        "contents": {
-          "type": "bubble",
-          "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-              {
-                "type": "text",
-                "text": `ขอบคุณ คุณ ${displayName}`,
-                "weight": "bold",
-                "size": "xl"
-              },
-              {
-                "type": "text",
-                "text": "รูปภาพได้รับการบันทึกแล้ว"
-              }
-            ]
-          }
+    // Function to upload the image to Google Drive
+    async function uploadImageToDrive(orderNumber, imageData) {
+      // Replace with your actual Apps Script URL
+      const uploadUrl = 'https://script.google.com/macros/s/AKfycbwa8NbUubfH_CsYLbAt2jqxqrAcQMxRMKTmpzwDaJACd2rnfByX7QxPN58m07hzjguATw/exec';
+
+      try {
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            orderNumber: orderNumber,
+            imageData: imageData
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
-      };
-      await liff.sendMessages([flexMessage]);
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error('Image upload failed');
+        }
+      } catch (error) {
+        console.error('Error uploading image: ', error);
+        throw error;
+      }
     }
 
+    // Initialize LIFF when the page loads
     initLIFF();
   </script>
 </body>
