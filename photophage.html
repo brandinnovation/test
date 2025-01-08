@@ -1,158 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกข้อมูล</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<!DOCTYPE html>  
+<html lang="th">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>LINE LIFF Form</title>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            text-align: center;  
+            padding: 20px;  
+        }  
+        h1 {  
+            font-size: 2em;  
+            color: #333;  
+        }  
+        input[type="text"], input[type="file"] {  
+            width: 80%;  
+            padding: 10px;  
+            margin: 10px 0;  
+            border: 1px solid #ccc;  
+            border-radius: 5px;  
+        }  
+        button {  
+            padding: 10px 20px;  
+            background-color: #4CAF50;  
+            color: white;  
+            border: none;  
+            border-radius: 5px;  
+            cursor: pointer;  
+            font-size: 1em;  
+        }  
+        button:hover {  
+            background-color: #45a049;  
+        }  
+        .message {  
+            margin-top: 20px;  
+            font-size: 1.2em;  
+            color: #333;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <h1>แบบฟอร์มบันทึกข้อมูล</h1>  
+    <input type="text" id="orderNumber" placeholder="กรอกเลขออเดอร์" required>  
+    <input type="file" id="imageUpload" accept="image/*" required>  
+    <button onclick="submitForm()">บันทึกข้อมูล</button>  
+    <div class="message" id="message"></div>  
 
-        .form-container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            width: 90%;
-        }
+    <script>  
+        function submitForm() {  
+            const orderNumber = document.getElementById('orderNumber').value;  
+            const imageUpload = document.getElementById('imageUpload').files[0];  
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
+            if (!orderNumber || !imageUpload) {  
+                alert('กรุณากรอกเลขออเดอร์และอัพโหลดรูปภาพ');  
+                return;  
+            }  
 
-        label {
-            display: block;
-            text-align: left;
-            margin-bottom: 8px;
-            font-size: 16px;
-            color: #555;
-        }
+            const reader = new FileReader();  
+            reader.onloadend = function() {  
+                const imageUrl = reader.result;  
 
-        input[type="text"],
-        input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #status {
-            margin-top: 15px;
-            font-size: 16px;
-            color: #555;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h1>บันทึกข้อมูลของคุณ</h1>
-        <form id="form">
-            <label for="orderNumber">กรอกเลขออเดอร์</label>
-            <input type="text" id="orderNumber" placeholder="ระบุเลขออเดอร์" required>
-
-            <label for="file">อัพโหลดรูปภาพ</label>
-            <input type="file" id="file" accept="image/*" required>
-
-            <button type="submit">บันทึกข้อมูล</button>
-        </form>
-        <p id="status"></p>
-    </div>
-
-    <script>
-        // เริ่มต้น LIFF
-        liff.init({ liffId: '<2006738214-149nvm0m>' }).then(() => {
-            if (!liff.isLoggedIn()) {
-                liff.login();
-            }
-        });
-
-        document.getElementById('form').addEventListener('submit', async (e) => {
-            e.preventDefault(); // ป้องกันการรีเฟรชหน้าเว็บ
-
-            const orderNumber = document.getElementById('orderNumber').value.trim();
-            const fileInput = document.getElementById('file');
-            const file = fileInput.files[0];
-            const status = document.getElementById('status');
-
-            // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
-            if (!orderNumber) {
-                status.textContent = 'กรุณากรอกเลขออเดอร์';
-                status.className = 'error';
-                return;
-            }
-            if (!file) {
-                status.textContent = 'กรุณาอัพโหลดรูปภาพ';
-                status.className = 'error';
-                return;
-            }
-
-            try {
-                status.textContent = 'กำลังบันทึกข้อมูล...';
-                status.className = '';
-
-                // ดึง userId จาก LIFF
-                const userId = await liff.getProfile().then(profile => profile.userId);
-
-                // เตรียมข้อมูลสำหรับส่งไปยัง Google Apps Script
-                const formData = new FormData();
-                formData.append('orderNumber', orderNumber);
-                formData.append('file', file);
-                formData.append('userId', userId);
-
-                const response = await fetch('<https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec>', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    status.textContent = 'บันทึกข้อมูลเรียบร้อย!';
-                    status.className = '';
-                } else {
-                    status.textContent = `เกิดข้อผิดพลาด: ${result.message}`;
-                    status.className = 'error';
-                }
-            } catch (error) {
-                status.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
-                status.className = 'error';
-            }
-        });
-    </script>
-</body>
+                google.script.run.withSuccessHandler(function(response) {  
+                    document.getElementById('message').innerText = 'บันทึกข้อมูลเรียบร้อย';  
+                    setTimeout(() => {  
+                        window.close();  
+                    }, 2000);  
+                }).saveImage(orderNumber, imageUrl);  
+            }  
+            reader.readAsDataURL(imageUpload);  
+        }  
+    </script>  
+</body>  
 </html>
