@@ -1,210 +1,210 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกรูปภาพออเดอร์</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        #liffAppContent {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-        }
-
-        button[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #message {
-            margin-top: 15px;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <div id="liffAppContent" style="display: none;">
-        <h1>บันทึกรูปภาพออเดอร์</h1>
-        <form id="orderForm">
-            <div>
-                <label for="orderNumber">เลขออเดอร์:</label>
-                <input type="text" id="orderNumber" name="orderNumber" required>
-            </div>
-            <div>
-                <label for="imageFile">รูปภาพ:</label>
-                <input type="file" id="imageFile" name="imageFile" accept="image/*" capture="camera">
-            </div>
-            <button type="submit">บันทึกข้อมูล</button>
-        </form>
-        <div id="message"></div>
-    </div>
-    </script>
-</body>
-</html>
-
-    <script>
-        // 初始化 LIFF
-        liff.init({
-            liffId: '2006738214-149nvm0m' // เปลี่ยนเป็น LIFF ID ของคุณ
-        })
-        .then(() => {
-            if (!liff.isLoggedIn()) {
-                liff.login();
-            }
-            document.getElementById('liffAppContent').style.display = 'block';
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-
-        // ฟังก์ชันสำหรับแสดงรูปภาพตัวอย่าง
-        function displayPreviewImage(imageUrl) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `<img src="${imageUrl}" alt="รูปภาพตัวอย่าง">`;
-        }
-
-        // ฟังก์ชันสำหรับอัปโหลดรูปภาพไปยัง Google Drive
-        async function uploadImage(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const response = await fetch('https://script.google.com/macros/s/AKfycbyFqMnzrxlSnng30aBWVjQNIqsWqN8msiQWB9ywJabstLuKzhGx-gHF67yVRewD1rGy/exec', { // เปลี่ยนเป็น URL ของ Google Apps Script
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            return data.id; // ส่งกลับ ID ของไฟล์แทน URL
-        }
-
-        // ฟังก์ชันสำหรับบันทึกข้อมูลลง Google Sheets
-        async function saveData(orderNumber, imageId) {
-            const spreadsheetId = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; // ID ของ Google Sheet
-            const sheetNames = ['เพจ1', 'เพจ2']; // ชื่อชีตที่ต้องการค้นหา
-
-            for (const sheetName of sheetNames) {
-            try {
-            const response = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
-            const data = await response.text();
-            const jsonData = JSON.parse(data.substring(47).slice(0, -2));
-            const rows = jsonData.table.rows;
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i].c;
-                if (row && row[0] && row[0].v === orderNumber) {
-                    // พบเลขออเดอร์ที่ตรงกัน
-                    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
-
-                    // ตรวจสอบว่ามีรูปภาพในคอลัมน์ AE หรือไม่
-                    const existingImage = sheet.getRange(i + 2, 31).getValue();
-                    let imageFormula = `=IMAGE("https://drive.google.com/uc?export=view&id=${imageId}")`;
-                    if (existingImage) {
-                        // ถ้ามีรูปอยู่แล้ว ให้ต่อ URL รูปภาพใหม่เข้าไป
-                        imageFormula = `${existingImage}, ${imageFormula}`;
-                    }
-
-                    sheet.getRange(i + 2, 31).setValue(imageFormula); // คอลัมน์ AE คือคอลัมน์ที่ 31
-                    return true;
-                }
-            }
-            } catch (error) {
-            console.error(`Error processing sheet ${sheetName}:`, error);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บันทึกรูปภาพออเดอร์</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
 
-    return false; // ไม่พบเลขออเดอร์ที่ตรงกัน
-}
+    #liffAppContent {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
 
-        // ฟังก์ชันสำหรับส่ง Flex Message
-        function sendFlexMessage() {
-            liff.sendMessages([{
-                    "type": "flex",
-                    "altText": "บันทึกข้อมูลเรียบร้อยแล้ว",
-                    "contents": {
-                        "type": "bubble",
-                        "body": {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [{
-                                "type": "text",
-                                "text": "บันทึกข้อมูลเรียบร้อยแล้ว"
-                            }]
-                        }
-                    }
-                }
-            ])
-                .then(() => {
-                    liff.closeWindow();
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    button[type="submit"] {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #message {
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="liffAppContent" style="display: none;">
+    <h1>บันทึกรูปภาพออเดอร์</h1>
+    <form id="orderForm">
+      <div>
+        <label for="orderNumber">เลขออเดอร์:</label>
+        <input type="text" id="orderNumber" name="orderNumber" required>
+      </div>
+      <div>
+        <label for="imageFile">รูปภาพ:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" capture="camera">
+      </div>
+      <button type="submit">บันทึกข้อมูล</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    liff.init({
+        liffId: '2006738214-149nvm0m' // เปลี่ยนเป็น LIFF ID ของคุณ
+      })
+      .then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
         }
+        document.getElementById('liffAppContent').style.display = 'block';
+      })
+      .catch((err) => {
+        console.error(err);
+      });
 
-        // Event Listener สำหรับการ submit แบบฟอร์ม
-        document.getElementById('orderForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
+    // ฟังก์ชันสำหรับแสดงรูปภาพตัวอย่าง
+    function displayPreviewImage(imageUrl) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.innerHTML = `<img src="${imageUrl}" alt="รูปภาพตัวอย่าง">`;
+    }
 
-            const orderNumber = document.getElementById('orderNumber').value;
-            const imageFile = document.getElementById('imageFile').files[0];
+    // ฟังก์ชันสำหรับอัปโหลดรูปภาพไปยัง Google Drive
+    async function uploadImage(file, orderNumber) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('orderNumber', orderNumber); // ส่งเลขออเดอร์ไปด้วย
 
-            document.getElementById('message').textContent = 'กำลังบันทึกข้อมูล...';
+      const response = await fetch('https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec', { // เปลี่ยนเป็น URL ของ Google Apps Script
+        method: 'POST',
+        body: formData
+      });
 
-            try {
-                const imageId = await uploadImage(imageFile);
-                const isSaved = await saveData(orderNumber, imageId);
+      const data = await response.json();
+      return data.id; // ส่งกลับ ID ของไฟล์
+    }
 
-                if (isSaved) {
-                    document.getElementById('message').textContent = 'บันทึกข้อมูลเรียบร้อย';
-                    sendFlexMessage();
-                } else {
-                    document.getElementById('message').textContent = 'ไม่พบเลขออเดอร์ที่ตรงกัน';
-                }
-            } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล:', error);
-                document.getElementById('message').textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+    // ฟังก์ชันสำหรับบันทึกข้อมูลลง Google Sheets
+    async function saveData(orderNumber, imageId) {
+      const spreadsheetId = '1kgaPVWljpYjMFzZJB1LTzr4Gma3lO4kpQSrhH_t5nJU'; // ID ของ Google Sheet
+      const sheetNames = ['DATA1', 'DATA2']; // ชื่อชีตที่ต้องการค้นหา
+
+      for (const sheetName of sheetNames) {
+        try {
+          const response = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`);
+          const data = await response.text();
+          const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+          const rows = jsonData.table.rows;
+
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i].c;
+            const orderNumberInSheet = row[1].v.replace(/-/g, ''); // ลบ "-" ออกจากเลขออเดอร์ในชีต
+            if (orderNumberInSheet === orderNumber) {
+              // พบเลขออเดอร์ที่ตรงกัน
+              const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
+
+              // ตรวจสอบว่ามีรูปภาพในคอลัมน์ G หรือไม่
+              const existingImage = sheet.getRange(i + 2, 7).getValue(); // คอลัมน์ G คือคอลัมน์ที่ 7
+              let imageFormula = `=IMAGE("https://drive.google.com/uc?export=view&id=${imageId}")`;
+              if (existingImage) {
+                // ถ้ามีรูปอยู่แล้ว ให้ต่อ URL รูปภาพใหม่เข้าไป
+                imageFormula = `${existingImage}, ${imageFormula}`;
+              }
+
+              sheet.getRange(i + 2, 7).setValue(imageFormula);
+              return true;
             }
+          }
+        } catch (error) {
+          console.error(`Error processing sheet ${sheetName}:`, error);
+        }
+      }
+
+      return false; // ไม่พบเลขออเดอร์ที่ตรงกัน
+    }
+
+    // ฟังก์ชันสำหรับส่ง Flex Message
+    function sendFlexMessage() {
+      liff.sendMessages([{
+          "type": "flex",
+          "altText": "บันทึกข้อมูลเรียบร้อยแล้ว",
+          "contents": {
+            "type": "bubble",
+            "body": {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [{
+                "type": "text",
+                "text": "บันทึกข้อมูลเรียบร้อยแล้ว"
+              }]
+            }
+          }
+        }
+      ])
+        .then(() => {
+          liff.closeWindow();
+        })
+        .catch((err) => {
+          console.error(err);
         });
-    </script>
+    }
+
+    // Event Listener สำหรับการ submit แบบฟอร์ม
+    document.getElementById('orderForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const orderNumber = document.getElementById('orderNumber').value;
+      const imageFile = document.getElementById('imageFile').files[0];
+
+      document.getElementById('message').textContent = 'กำลังบันทึกข้อมูล...';
+
+      try {
+        const imageId = await uploadImage(imageFile, orderNumber); // ส่งเลขออเดอร์ไปยัง Google Apps Script
+        const isSaved = await saveData(orderNumber, imageId);
+
+        if (isSaved) {
+          document.getElementById('message').textContent = 'บันทึกข้อมูลเรียบร้อย';
+          sendFlexMessage();
+        } else {
+          document.getElementById('message').textContent = 'ไม่พบเลขออเดอร์ที่ตรงกัน';
+        }
+      } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล:', error);
+        document.getElementById('message').textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+      }
+    });
+  </script>
 </body>
 </html>
