@@ -108,7 +108,7 @@
 
     <script>
         // ฟังก์ชันเริ่มต้น LIFF
-        liff.init({ liffId: '<YOUR_LIFF_ID>' }).then(() => {
+        liff.init({ liffId: '<2006738214-149nvm0m>' }).then(() => {
             if (!liff.isLoggedIn()) {
                 liff.login(); // ถ้ายังไม่ได้ล็อกอิน ให้ล็อกอิน
             }
@@ -138,7 +138,7 @@
             document.getElementById('status').innerText = 'กำลังบันทึกข้อมูล...';
 
             // ส่งข้อมูลไปยัง Google Apps Script
-            const response = await fetch('<YOUR_GOOGLE_APP_SCRIPT_URL>', {
+            const response = await fetch('<https://script.google.com/macros/s/AKfycbxoDO6D_Na-iOD2l_MoqaHAQ_pWLjb8I_733Lx9ZB88-SvK0a4bNJnrRBXKL5H7NbjoKA/exec>', {
                 method: 'POST',
                 body: formData
             });
