@@ -84,11 +84,6 @@
           <input type="text" id="orderNumber" name="orderNumber" class="w-full p-2 border rounded-lg">
         </div>
 
-
-        <div class="mt-4 mb-5">
-          <textarea id="reimbursementDetail" name="reimbursementDetail" placeholder="รายละเอียด"
-            class="w-full p-2 border rounded-lg"></textarea>
-        </div>
         <div class="text-center bg-slate-100 rounded-lg my-5 p-4">
           <label for="file" class="cursor-pointer justify-between items-center"> อัพโหลดเอกสาร
             <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" class="hidden">
@@ -104,9 +99,9 @@
   </div>
   <script>
     // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App
-    const WEB_MEMBER_APP_URL = 'https://script.google.com/macros/s/AKfycbxDpxZqliJAcwF5YXZeApOdoWj1OXtDFa54iMAECKaNQf1mXwPRE_yhi8G1Rj-nxLV2VA/exec';
-    const WEB_APP_REIMBURSEMENT_URL = 'https://script.google.com/macros/s/AKfycbyh9ch1zf0BM-QhqvDBLK8mV1e-eFgVz6r7-AdEC1H__049AI1d5IqvhtSEFSRdPT_J/exec';
-    const LIFF_ID = '2006738214-149nvm0m'; // Liff ID
+    const WEB_MEMBER_APP_URL = 'https://script.google.com/macros/s/AKfycbxDpxZqliJAcwF5YXZeApOdoWj1OXtDFa54iMAECKaNQf1mXwPRE_yhi8G1Rj-nxLV2VA/exec'; 
+    const WEB_APP_REIMBURSEMENT_URL = 'https://script.google.com/macros/s/AKfycbxz8N_D7cM0rY7y_oLYMZ8_u21Ii14V_BORwY8opzH3v-rx80e6SYt8iNzfdWXBzIVq9w/exec'; // **ใส่ Script ID ของคุณตรงนี้**
+    const LIFF_ID = '2006738214-149nvm0m'; // **ใส่ LIFF ID ของคุณตรงนี้**
 
     // เริ่มการทำงานเมื่อโหลดหน้าเว็บ
     window.onload = async function () {
@@ -116,7 +111,7 @@
     // ฟังก์ชันสำหรับเริ่มการทำงานของ LIFF
     async function initializeLiff() {
       try {
-        await liff.init({ liffId: `${LIFF_ID}` }); // ใช้ Liff ID ของคุณ
+        await liff.init({ liffId: `${LIFF_ID}` }); 
         if (liff.isLoggedIn()) {
           getUserProfile();
         } else {
@@ -192,8 +187,7 @@
     let nameIdInput = document.getElementById("columnBData");
     let numberIdInput = document.getElementById("columnCData");
     let roleId = document.getElementById("columnDData");
-    let orderNumber = document.getElementById("orderNumber"); // เปลี่ยนชื่อตัวแปร 
-    let reimbursementDetail = document.getElementById("reimbursementDetail");
+    let orderNumber = document.getElementById("orderNumber");
     let submitBtn = document.getElementById("submitBtn");
     let fileInput = document.getElementById("file");
     let fileNameDisplay = document.getElementById("fileNameDisplay");
@@ -222,13 +216,10 @@
       const userlineId = userlineIdInput.value.trim();
       const nameId = nameIdInput.value.trim();
       const roleIdValue = roleId.value.trim();
-      const orderNumberValue = orderNumber.value.trim(); // ตรวจสอบ orderNumber
-      const reimbursementDetailValue = reimbursementDetail.value.trim();
-
-      if (userlineId === '' || nameId === '' || roleIdValue === '' || orderNumberValue === '' || reimbursementDetailValue === '') {
+      const orderNumberValue = orderNumber.value.trim();
+      if (userlineId === '' || nameId === '' || roleIdValue === '' || orderNumberValue === '') {
         return false;
       }
-
       return true;
     }
 
@@ -256,8 +247,7 @@
             nameId: nameIdInput.value,
             roleId: roleId.value,
             numberId: numberIdInput.value,
-            orderNumber: orderNumber.value, // เพิ่ม orderNumber
-            reimbursementDetail: reimbursementDetail.value
+            orderNumber: orderNumber.value,
           };
 
           if (fileInput.files.length > 0) {
@@ -268,7 +258,7 @@
             obj.type = file.type;
 
             // ใช้ orderNumber ในการตั้งชื่อไฟล์
-            obj.name = `<span class="math-inline">\{orderNumber\.value\}\_</span>{file.name}`; 
+            obj.name = `${orderNumber.value}_${file.name}`; 
           }
 
           Swal.fire({
@@ -295,9 +285,7 @@
             confirmButtonText: 'ปิด',
           }).then(async (result) => {
             if (result.isConfirmed) {
-              // Reset form
               document.querySelector('form').reset();
-              await sendFlexMessage(obj); // ส่งข้อความ Flex Message หลังจากการส่งข้อมูล
             }
           });
           console.log(data);
@@ -331,20 +319,7 @@
       return confirmation.isConfirmed;
     }
 
-    // ฟังก์ชันสำหรับส่ง Flex Message ผ่าน LINE
-    async function sendFlexMessage(data) {
-      const flexMessage = {
-        type: "flex",
-        altText: "คำขออนุมัติการบันทึกรูปภาพ",
-        contents: {
-          type: "bubble",
-          body: {
-            type: "box",
-            layout: "vertical",
-            contents: [
-              { type: "text", text: "🟢 คำขออนุมัติการบันทึกรูปภาพ", weight: "bold", size: "md", color: "#1DB446" },
-              {
-                type: "box", layout: "vertical", margin: "lg", spacing: "sm", contents: [
-                  { type: "text", text: `ชื่อ: ${data.nameId}` },
-                  { type: "text", text: `ชื่อเลขออเดอร์: ${data.orderNumber}` },
-                  { type: "text", color: '#2d63c7', text:
+  </script>
+</body>
+
+</html>
