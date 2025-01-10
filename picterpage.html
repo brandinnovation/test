@@ -216,17 +216,14 @@
 
         // ฟังก์ชันสำหรับตรวจสอบความถูกต้องของฟอร์ม
         function validateForm() {
-            const userlineId = userlineIdInput.value.trim();
-            const nameId = nameIdInput.value.trim();
-            const roleIdValue = roleId.value.trim();
             const orderNumberValue = orderNumber.value.trim();
 
-            if (userlineId === '' || nameId === '' || roleIdValue === '' || orderNumberValue === '') {
+              if (orderNumberValue === '') {
                 return false;
-            }
+              }
 
-            return true;
-        }
+                  return true;
+            }
 
         // ฟังก์ชันสำหรับจัดการคลิกปุ่มส่งข้อมูล
         submitBtn.addEventListener('click', async (event) => {
