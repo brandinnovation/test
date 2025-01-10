@@ -79,7 +79,7 @@
 
           <div class="mb-5">
             <label for="orderNumber" class="block text-main">เลขออเดอร์</label>
-            <input type="number" id="orderNumber" name="orderNumber" class="w-full p-2 border rounded-lg">
+            <input type="text" id="orderNumber" name="orderNumber" class="w-full p-2 border rounded-lg"> 
           </div>
 
           <div class="text-center bg-slate-100 rounded-lg my-5 p-4">
@@ -213,8 +213,14 @@
     // ฟังก์ชันสำหรับตรวจสอบความถูกต้องของฟอร์ม
     function validateForm() {
       const orderNumberValue = orderNumber.value.trim();
+      const pattern = /^[a-zA-Z0-9-]+$/; // ตรวจสอบว่ามีเฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข และเครื่องหมาย -
 
-      if (orderNumberValue === '') {
+      if (!pattern.test(orderNumberValue)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'กรุณากรอกเลขออเดอร์ให้ถูกต้อง (ตัวอักษรภาษาอังกฤษ, ตัวเลข, และเครื่องหมาย - เท่านั้น)',
+        });
         return false;
       }
 
@@ -226,12 +232,8 @@
       event.preventDefault();
 
       if (!validateForm()) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Validation Error',
-          text: 'กรุณากรอกเลขออเดอร์',
-        });
-        return;
+        // ถ้า validateForm() return false ให้หยุดการทำงาน
+        return; 
       }
 
       const isConfirmed = await showConfirmationDialog();
