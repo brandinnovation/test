@@ -120,6 +120,16 @@
       /* สีเขียว */
       font-weight: bold;
     }
+
+    img {
+      /* กำหนด style สำหรับรูปภาพ */
+      max-width: 100%;
+      height: auto;
+      display: block;
+      /* ทำให้รูปภาพเป็น block element */
+      margin-top: 10px;
+      /* เพิ่มระยะห่างด้านบนรูปภาพ */
+    }
   </style>
 </head>
 
@@ -133,16 +143,21 @@
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
-     async function searchData() {
+    async function searchData() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/-/g, '');
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
+      resultDiv.innerHTML = ''; // Clear previous results
 
       try {
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpaggq6Nt1y_tFzBOuJwXzB3eJvtAOxdhXjGzWzZtAyYlaTWmSjY37jLjFGPTH5XIPWw/exec';
+        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxpaggq6Nt1y_tFzBOuJwXzB3eJvtAOxdhXjGzWzZtAyYlaTWmSjY37jLjFGPTH5XIPWw/exec'; 
 
         const response = await fetch(appsScriptUrl + '?function=searchPhone&searchTerm=' + searchTerm);
         const data = await response.json();
+
+        if (data.length === 0) {
+          resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
+          return;
+        }
 
         displayResults(data);
       } catch (error) {
@@ -153,12 +168,7 @@
 
     function displayResults(results) {
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
-
-      if (results.length === 0) {
-        resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
-        return;
-      }
+      resultDiv.innerHTML = ''; // Clear previous results
 
       const resultContainer = document.createElement('div');
       resultContainer.classList.add('result-container');
@@ -167,71 +177,45 @@
         const resultItem = document.createElement('div');
         resultItem.classList.add('result-item');
 
-        // เบอร์โทร (สีน้ำเงิน, ตัวหนังสือสีขาว)
-        const phoneNumberLabel = document.createElement('div');
-        phoneNumberLabel.classList.add('label', 'phone-number');
-        phoneNumberLabel.textContent = "เบอร์โทร";
-        const phoneNumberData = document.createElement('div');
-        phoneNumberData.classList.add('data');
-        phoneNumberData.textContent = result.phoneNumber;
+        // เบอร์โทร
+        const phoneNumberLabel = createLabel('phone-number', "เบอร์โทร");
+        const phoneNumberData = createData(result.phoneNumber);
         resultItem.appendChild(phoneNumberLabel);
         resultItem.appendChild(phoneNumberData);
 
-        // เลขออเดอร์ (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const orderNumberLabel = document.createElement('div');
-        orderNumberLabel.classList.add('label', 'order-number');
-        orderNumberLabel.textContent = "เลขออเดอร์";
-        const orderNumberData = document.createElement('div');
-        orderNumberData.classList.add('data');
-        orderNumberData.textContent = result.orderNumber;
+        // เลขออเดอร์
+        const orderNumberLabel = createLabel('order-number', "เลขออเดอร์");
+        const orderNumberData = createData(result.orderNumber);
         resultItem.appendChild(orderNumberLabel);
         resultItem.appendChild(orderNumberData);
 
-        // สินค้า (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const productLabel = document.createElement('div');
-        productLabel.classList.add('label', 'product');
-        productLabel.textContent = "สินค้า";
-        const productData = document.createElement('div');
-        productData.classList.add('data');
-        productData.textContent = result.product;
+        // สินค้า
+        const productLabel = createLabel('product', "สินค้า");
+        const productData = createData(result.product);
         resultItem.appendChild(productLabel);
         resultItem.appendChild(productData);
 
-        // ที่อยู่ (สีเทาเข้ม, ตัวหนังสือสีขาว)
-        const addressLabel = document.createElement('div');
-        addressLabel.classList.add('label', 'address');
-        addressLabel.textContent = "ที่อยู่";
-        const addressData = document.createElement('div');
-        addressData.classList.add('data');
-        addressData.textContent = result.address;
+        // ที่อยู่
+        const addressLabel = createLabel('address', "ที่อยู่");
+        const addressData = createData(result.address);
         resultItem.appendChild(addressLabel);
         resultItem.appendChild(addressData);
 
-        // สถานะ (สีเขียวเข้ม, ตัวหนังสือสีขาว)
-        const statusLabel = document.createElement('div');
-        statusLabel.classList.add('label', 'status');
-        statusLabel.textContent = "สถานะ";
-        const statusData = document.createElement('div');
-        statusData.classList.add('data');
-        statusData.textContent = result.status;
+        // สถานะ
+        const statusLabel = createLabel('status', "สถานะ");
+        const statusData = createData(result.status);
         resultItem.appendChild(statusLabel);
         resultItem.appendChild(statusData);
 
-        // เลขพัสดุ (สีแดงเข้ม, ตัวหนังสือสีขาว)
-        const trackingNumberLabel = document.createElement('div');
-        trackingNumberLabel.classList.add('label', 'tracking-number');
-        trackingNumberLabel.textContent = "เลขพัสดุ";
-        const trackingNumberData = document.createElement('div');
-        trackingNumberData.classList.add('data');
-        trackingNumberData.textContent = result.trackingNumber;
+        // เลขพัสดุ
+        const trackingNumberLabel = createLabel('tracking-number', "เลขพัสดุ");
+        const trackingNumberData = createData(result.trackingNumber);
         resultItem.appendChild(trackingNumberLabel);
         resultItem.appendChild(trackingNumberData);
 
-        // รูปภาพ (ปรับขนาดให้พอดีกับหน้าจอ)
+        // รูปภาพ
         const image = document.createElement('img');
         image.src = result.image;
-        image.style.maxWidth = '100%';
-        image.style.height = 'auto';
         resultItem.appendChild(image);
 
         resultContainer.appendChild(resultItem);
@@ -240,10 +224,26 @@
       resultDiv.appendChild(resultContainer);
     }
 
+    // Helper function to create label elements
+    function createLabel(className, textContent) {
+      const label = document.createElement('div');
+      label.classList.add('label', className);
+      label.textContent = textContent;
+      return label;
+    }
+
+    // Helper function to create data elements
+    function createData(textContent) {
+      const data = document.createElement('div');
+      data.classList.add('data');
+      data.textContent = textContent;
+      return data;
+    }
+
     // 初始化 LIFF
     function initializeLIFF() {
       liff.init({
-          liffId: "2006665858-drlDwV2y"
+          liffId: "2006665858-drlDwV2y" 
         })
         .then(() => {
           console.log('LIFF initialized!');
