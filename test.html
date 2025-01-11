@@ -214,15 +214,10 @@
         resultItem.appendChild(trackingNumberData);
 
         // รูปภาพ (แก้ไขส่วนนี้)
-        const imageContainer = document.createElement('div'); // สร้าง div สำหรับใส่รูปภาพ
-        imageContainer.innerHTML = result.image; // กำหนด innerHTML เป็นโค้ดรูปภาพจาก Apps Script
-        resultItem.appendChild(imageContainer); 
-
-        resultContainer.appendChild(resultItem);
-      });
-
-      resultDiv.appendChild(resultContainer);
-    }
+        const imageContainer = document.createElement('div');
+        imageContainer.innerHTML = result.image;
+        resultItem.appendChild(imageContainer);
+        });
 
     // Helper function to create label elements
     function createLabel(className, textContent) {
