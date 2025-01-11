@@ -149,7 +149,7 @@
       resultDiv.innerHTML = ''; // Clear previous results
 
       try {
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycby1te4cmld0-Qf6Hk2YN32g4OizeR1A0UusRiWkLZWLEtFK0kGqrnoIocR-SgX0YaqBWA/exec'; 
+        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycby1te4cmld0-Qf6Hk2YN32g4OizeR1A0UusRiWkLZWLEtFK0kGqrnoIocR-SgX0YaqBWA/exec';
 
         const response = await fetch(appsScriptUrl + '?function=searchPhone&searchTerm=' + searchTerm);
         const data = await response.json();
@@ -213,10 +213,10 @@
         resultItem.appendChild(trackingNumberLabel);
         resultItem.appendChild(trackingNumberData);
 
-        // รูปภาพ
-        const image = document.createElement('img');
-        image.src = result.image;
-        resultItem.appendChild(image);
+        // รูปภาพ (แก้ไขส่วนนี้)
+        const imageContainer = document.createElement('div'); // สร้าง div สำหรับใส่รูปภาพ
+        imageContainer.innerHTML = result.image; // กำหนด innerHTML เป็นโค้ดรูปภาพจาก Apps Script
+        resultItem.appendChild(imageContainer); 
 
         resultContainer.appendChild(resultItem);
       });
