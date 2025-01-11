@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>ค้นหาพัสดุ</title>
+  <title>บริษัท แบรนด์ อินโนเวชั่น จำกัด , บริษัท รวยมารุม กรุ๊ปส์ จำกัด</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -13,50 +14,79 @@
       min-height: 100vh;
       background-color: #f0f0f0;
     }
+
     .container {
       background-color: #fff;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      /* จัดข้อความชิดซ้าย */
     }
+
     input[type="tel"] {
-      width: 80%;
-      padding: 15px;
-      margin: 20px 0;
+      width: calc(100% - 22px);
+      /* ปรับความกว้าง input */
+      padding: 12px;
+      margin: 15px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
-      font-size: 18px;
+      font-size: 16px;
       box-sizing: border-box;
     }
+
     button {
       background-color: #008CBA;
+      /* สีปุ่ม */
       color: white;
-      padding: 12px 20px;
+      padding: 10px 15px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
     }
+
     .result {
       margin-top: 20px;
+      line-height: 1.8;
+      /* เพิ่มระยะห่างบรรทัด */
     }
+
     .label {
       display: inline-block;
-      padding: 8px 12px;
-      border-radius: 20px;
+      padding: 5px 10px;
+      /* ลดขนาดบอลลูน */
+      border-radius: 15px;
+      /* ปรับมุมบอลลูน */
       color: white;
       margin-bottom: 5px;
-      font-size: 16px;
+      font-size: 14px;
+      /* ปรับขนาดตัวอักษร */
     }
-    .phone-number { background-color: #007bff; } 
-    .order-number, .product, .address { background-color: #6c757d; }
-    .status, .tracking-number { background-color: #f06292; } 
+
+    .phone-number {
+      background-color: #2196F3;
+      /* เปลี่ยนสีบอลลูนเบอร์โทร */
+    }
+
+    .order-number,
+    .product,
+    .address {
+      background-color: #4CAF50;
+      /* เปลี่ยนสีบอลลูนอื่นๆ */
+    }
+
+    .status,
+    .tracking-number {
+      background-color: #FF9800;
+      /* เปลี่ยนสีบอลลูนสถานะ */
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <h1>ค้นหาพัสดุ</h1>
+    <h1>ระบบค้นหาพัสดุโรงงานป้าย</h1>
     <input type="tel" id="searchInput" placeholder="ป้อนเบอร์โทรศัพท์">
     <button onclick="searchData()">ค้นหา</button>
     <div id="result"></div>
@@ -84,7 +114,7 @@
 
     function displayResults(results) {
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = ''; 
+      resultDiv.innerHTML = ''; // Clear previous results
 
       if (results.length === 0) {
         resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
