@@ -149,7 +149,7 @@
       resultDiv.innerHTML = ''; // Clear previous results
 
       try {
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycby1te4cmld0-Qf6Hk2YN32g4OizeR1A0UusRiWkLZWLEtFK0kGqrnoIocR-SgX0YaqBWA/exec';
+        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbz2r0YSCfHxAG1fSyTwKWgCsbDdt81Kvu2AD2e-8TaJfY8hOjlcGpMudPIwb7t3COJ9BQ/exec';
 
         const response = await fetch(appsScriptUrl + '?function=searchPhone&searchTerm=' + searchTerm);
         const data = await response.json();
