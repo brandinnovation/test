@@ -1,142 +1,63 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <title>ระบบค้นหาพัสดุจากเบอร์โทร</title>
+  <title>ค้นหาพัสดุ</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f4f4f4;
-      /* สีพื้นหลัง body */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
     }
-
     .container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
       background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       text-align: center;
-      color: #333;
-      /* สีข้อความ h1 */
     }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+    input[type="tel"] {
+      width: 80%;
+      padding: 15px;
+      margin: 20px 0;
       border: 1px solid #ddd;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-size: 18px;
       box-sizing: border-box;
     }
-
     button {
       background-color: #008CBA;
-      /* สีพื้นหลังปุ่ม */
       color: white;
-      /* สีตัวหนังสือปุ่ม */
-      padding: 10px 20px;
-      margin: 10px 0;
+      padding: 12px 20px;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
     }
-
-    .result-container {
+    .result {
       margin-top: 20px;
     }
-
-    .result-item {
-      margin-bottom: 10px;
-    }
-
     .label {
-      /* กำหนด style สำหรับ label */
       display: inline-block;
-      padding: 5px 8px;
-      /* ระยะห่างภายใน label */
-      border-radius: 5px;
-      /* ขอบมนของ label */
+      padding: 8px 12px;
+      border-radius: 20px;
       color: white;
-      /* สีตัวหนังสือใน label */
-      margin-bottom: 6px;
-      /* ระยะห่างระหว่าง label กับ data */
-      font-size: 14px;
-      /* ขนาดตัวหนังสือ label */
+      margin-bottom: 5px;
+      font-size: 16px;
     }
-
-    .phone-number {
-      /* กำหนดสีพื้นหลัง label เบอร์โทร */
-      background-color: #007bff;
-      /* สีน้ำเงิน */
-    }
-
-    .order-number,
-    .product,
-    .address {
-      /* กำหนดสีพื้นหลัง label อื่นๆ */
-      background-color: #343a40;
-      /* สีเทาเข้ม */
-    }
-
-    .status {
-      /* กำหนดสีพื้นหลัง label สถานะ */
-      background-color: #28a745;
-      /* สีเขียวเข้ม */
-    }
-
-    .tracking-number {
-      /* กำหนดสีพื้นหลัง label เลขพัสดุ */
-      background-color: #dc3545;
-      /* สีแดงเข้ม */
-    }
-
-    .data {
-      /* กำหนด style สำหรับ data */
-      color: black;
-      /* สีดำ */
-      font-size: 17px;
-      /* ขนาดตัวหนังสือ data */
-      margin-bottom: 18px;
-      /* เพิ่มระยะห่าง 15px ด้านล่าง data */
-    }
-
-    div.status .data {
-      /* กำหนดสีตัวหนังสือ data สถานะ */
-      color: green;
-      /* สีเขียว */
-      font-weight: bold;
-    }
-
-    div.tracking-number .data {
-      /* กำหนดสีตัวหนังสือ data เลขพัสดุ */
-      color: red;
-      /* สีเขียว */
-      font-weight: bold;
-    }
-
-    img {
-      /* กำหนด style สำหรับรูปภาพ */
-      max-width: 100%;
-      height: auto;
-      display: block;
-      /* ทำให้รูปภาพเป็น block element */
-      margin-top: 10px;
-      /* เพิ่มระยะห่างด้านบนรูปภาพ */
-    }
+    .phone-number { background-color: #007bff; } 
+    .order-number, .product, .address { background-color: #6c757d; }
+    .status, .tracking-number { background-color: #f06292; } 
   </style>
 </head>
-
 <body>
   <div class="container">
-    <h1>พัสดุโรงงานป้าย</h1>
-    <input type="text" id="searchInput" placeholder="ป้อนเบอร์โทร">
+    <h1>ค้นหาพัสดุ</h1>
+    <input type="tel" id="searchInput" placeholder="ป้อนเบอร์โทรศัพท์">
     <button onclick="searchData()">ค้นหา</button>
     <div id="result"></div>
   </div>
@@ -144,20 +65,15 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     async function searchData() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase().replace(/-/g, '');
+      const searchTerm = document.getElementById('searchInput').value.trim();
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = ''; // Clear previous results
+      resultDiv.innerHTML = '<p style="text-align: center;">กำลังค้นหาข้อมูล รอสักครู่...</p>';
 
       try {
-        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbz2r0YSCfHxAG1fSyTwKWgCsbDdt81Kvu2AD2e-8TaJfY8hOjlcGpMudPIwb7t3COJ9BQ/exec';
+        const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbz2r0YSCfHxAG1fSyTwKWgCsbDdt81Kvu2AD2e-8TaJfY8hOjlcGpMudPIwb7t3COJ9BQ/exec'; // แทนที่ด้วย Web App URL ของคุณ
 
-        const response = await fetch(appsScriptUrl + '?function=searchPhone&searchTerm=' + searchTerm);
+        const response = await fetch(appsScriptUrl + '?searchTerm=' + searchTerm);
         const data = await response.json();
-
-        if (data.length === 0) {
-          resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
-          return;
-        }
 
         displayResults(data);
       } catch (error) {
@@ -168,14 +84,16 @@
 
     function displayResults(results) {
       const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = ''; // Clear previous results
+      resultDiv.innerHTML = ''; 
 
-      const resultContainer = document.createElement('div');
-      resultContainer.classList.add('result-container');
+      if (results.length === 0) {
+        resultDiv.innerHTML = '<p>ไม่พบข้อมูล</p>';
+        return;
+      }
 
       results.forEach(result => {
         const resultItem = document.createElement('div');
-        resultItem.classList.add('result-item');
+        resultItem.classList.add('result');
 
         // เบอร์โทร
         const phoneNumberLabel = createLabel('phone-number', "เบอร์โทร");
@@ -213,11 +131,14 @@
         resultItem.appendChild(trackingNumberLabel);
         resultItem.appendChild(trackingNumberData);
 
-        // รูปภาพ (แก้ไขส่วนนี้)
+        // รูปภาพ
         const imageContainer = document.createElement('div');
         imageContainer.innerHTML = result.image;
         resultItem.appendChild(imageContainer);
-        });
+
+        resultDiv.appendChild(resultItem);
+      });
+    }
 
     // Helper function to create label elements
     function createLabel(className, textContent) {
@@ -238,7 +159,7 @@
     // 初始化 LIFF
     function initializeLIFF() {
       liff.init({
-          liffId: "2006665858-drlDwV2y" 
+          liffId: "2006665858-drlDwV2y" // แทนที่ด้วย LIFF ID ของคุณ
         })
         .then(() => {
           console.log('LIFF initialized!');
