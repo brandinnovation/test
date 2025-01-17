@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Line Bot Secretary</title>
+</head>
+<body>
+  <h1>Line Bot Secretary</h1>
+
+  <h2>บันทึกรายจ่าย</h2>
+  <form id="expenseForm">
+    รายละเอียด: <input type="text" id="expenseDescription" name="description"><br>
+    จำนวนเงิน: <input type="number" id="expenseAmount" name="amount"><br>
+    <button type="submit">บันทึก</button>
+  </form>
+
+  <h2>บันทึกโน้ต</h2>
+  <form id="noteForm">
+    หัวข้อ: <input type="text" id="noteTitle" name="title"><br>
+    รายละเอียด: <textarea id="noteDetails" name="details"></textarea><br>
+    <button type="submit">บันทึก</button>
+  </form>
+
+  <script>
+    // บันทึกรายจ่าย
+    document.getElementById("expenseForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      google.script.run
+        .withSuccessHandler(function(result) { alert(result); })
+        .saveExpense(document.getElementById("expenseDescription").value, document.getElementById("expenseAmount").value);
+    });
+
+    // บันทึกโน้ต
+    document.getElementById("noteForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      google.script.run
+        .withSuccessHandler(function(result) { alert(result); })
+        .saveNote(document.getElementById("noteTitle").value, document.getElementById("noteDetails").value);
+    });
+  </script>
+</body>
+</html>
