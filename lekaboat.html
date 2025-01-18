@@ -1,59 +1,38 @@
-const express = require('express');
-const line = require('@line/bot-sdk');
-const axios = require('axios');
-
-const config = {
-  channelAccessToken: 'https://script.google.com/macros/s/AKfycbyS3PVGdu0wJ4UBdHdF6BFI_v6vcs1jYURdwV1MKjLUYJ492GVZkVPtOdI0WtO_-kvCCw/exec',
-  channelSecret: 'ee2de698a247677593a5c49c82197870',
-};
-
-const client = new line.Client(config);
-const app = express();
-app.use(express.json());
-
-app.post('/webhook', (req, res) => {
-  const events = req.body.events;
-  events.forEach(async (event) => {
-    if (event.type === 'message' && event.message.type === 'text') {
-      const message = event.message.text;
-
-      // เช็คคำสั่งจากผู้ใช้
-      if (message === "สมัครสมาชิก") {
-        const profile = await client.getProfile(event.source.userId);
-        const userData = {
-          userId: event.source.userId,
-          displayName: profile.displayName,
-          pictureUrl: profile.pictureUrl
-        };
-        
-        // ส่งข้อมูลไปยัง Google Apps Script
-        const response = await axios.post('YOUR_GOOGLE_APPS_SCRIPT_URL', userData);
-        if (response.data.status === 'success') {
-          replyMessage(event.replyToken, "สมัครสมาชิกเรียบร้อยแล้วค่ะ!");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Line LIFF Secretary Bot</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <script>
+    function initializeLiff() {
+      liff.init({
+        liffId: '2006793435-r4zKdO3y'
+      })
+      .then(() => {
+        if (liff.isLoggedIn()) {
+          // ผู้ใช้ล็อกอินแล้ว  
+          liff.getProfile().then(profile => {
+            // ส่งข้อมูลไปยัง Google Apps Script
+            google.script.run
+              .withSuccessHandler(function(html) {
+                document.body.innerHTML = html;
+              })
+              .doGet(profile);
+          });
+        } else {
+          // ผู้ใช้ยังไม่ได้ล็อกอิน
+          liff.login();
         }
-      }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
     }
-  });
 
-  res.status(200).send("OK");
-});
-
-function replyMessage(replyToken, text) {
-  const message = { type: 'text', text: text };
-  return client.replyMessage(replyToken, message);
-}
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
-const axios = require('axios');
-
-const githubApiUrl = 'https://api.github.com/repos/username/repository/commits';
-axios.get(githubApiUrl)
-  .then(response => {
-    console.log(response.data);
-  })
-  .catch(error => {
-    console.error(error);
-  });
-
+    // เรียกใช้ initializeLiff() เมื่อ LIFF SDK โหลดเสร็จ
+    liff.ready.then(initializeLiff);
+  </script>
+</body>
+</html>
