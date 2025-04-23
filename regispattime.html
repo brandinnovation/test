@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ลงทะเบียน</title>
+    <script src="https://static.line-scdn.net/liff/2/sdk.js"></script>
+</head>
+<body>
+    <h2>ลงทะเบียน</h2>
+    <form id="registerForm">
+        <label>ชื่อจริง:</label>
+        <input type="text" id="firstName" required><br>
+        <label>นามสกุล:</label>
+        <input type="text" id="lastName" required><br>
+        <label>ชื่อเล่น:</label>
+        <input type="text" id="nickname" required><br>
+        <label>เบอร์โทรศัพท์:</label>
+        <input type="tel" id="phone" required><br>
+        <label>เลขบัญชี:</label>
+        <input type="text" id="accountNumber" required><br>
+        <label>ธนาคาร:</label>
+        <input type="text" id="bankName" required><br>
+        <label>อัพโหลดรูปประจำตัว:</label>
+        <input type="file" id="profilePic" accept="image/*" required><br><br>
+        <button type="button" onclick="submitData()">บันทึก</button>
+    </form>
+    <p id="statusMessage"></p>
+    <button onclick="closeWindow()">ปิดหน้าต่างนี้</button>
+    <script>
+        async function initLIFF() {
+            await liff.init({ liffId: "YOUR_LIFF_ID" }); // Replace with your LIFF ID
+            const profile = await liff.getProfile();
+            document.getElementById('nickname').value = profile.displayName;
+        }
+
+        async function submitData() {
+            const formData = new FormData();
+            formData.append("userId", await liff.getUserId());
+            formData.append("firstName", document.getElementById("firstName").value);
+            formData.append("lastName", document.getElementById("lastName").value);
+            formData.append("nickname", document.getElementById("nickname").value);
+            formData.append("phone", document.getElementById("phone").value);
+            formData.append("accountNumber", document.getElementById("accountNumber").value);
+            formData.append("bankName", document.getElementById("bankName").value);
+            formData.append("profilePic", document.getElementById("profilePic").files[0]);
+
+            // ส่งข้อมูลไปที่ Google Apps Script
+            const response = await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                document.getElementById('statusMessage').innerText = "บันทึกข้อมูลเรียบร้อย";
+            } else {
+                document.getElementById('statusMessage').innerText = "เกิดข้อผิดพลาด";
+            }
+        }
+
+        function closeWindow() {
+            liff.closeWindow();
+        }
+
+        initLIFF();
+    </script>
+</body>
+</html>
