@@ -1,66 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <title>ลงทะเบียน</title>
-    <script src="https://static.line-scdn.net/liff/2/sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนใช้งาน</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="tel"], input[type="file"], button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button { background-color: #00B900; color: white; font-size: 16px; cursor: pointer; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        #profilePicPreview { max-width: 100px; max-height: 100px; display: block; margin-top: 10px; }
+        #closeButton { background-color: #6c757d; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <h2>ลงทะเบียน</h2>
-    <form id="registerForm">
-        <label>ชื่อจริง:</label>
-        <input type="text" id="firstName" required><br>
-        <label>นามสกุล:</label>
-        <input type="text" id="lastName" required><br>
-        <label>ชื่อเล่น:</label>
-        <input type="text" id="nickname" required><br>
-        <label>เบอร์โทรศัพท์:</label>
-        <input type="tel" id="phone" required><br>
-        <label>เลขบัญชี:</label>
-        <input type="text" id="accountNumber" required><br>
-        <label>ธนาคาร:</label>
-        <input type="text" id="bankName" required><br>
-        <label>อัพโหลดรูปประจำตัว:</label>
-        <input type="file" id="profilePic" accept="image/*" required><br><br>
-        <button type="button" onclick="submitData()">บันทึก</button>
-    </form>
-    <p id="statusMessage"></p>
-    <button onclick="closeWindow()">ปิดหน้าต่างนี้</button>
-    <script>
-        async function initLIFF() {
-            await liff.init({ liffId: "2007104190-Qq4B589l" }); // Replace with your LIFF ID
-            const profile = await liff.getProfile();
-            document.getElementById('nickname').value = profile.displayName;
-        }
 
-        async function submitData() {
-            const formData = new FormData();
-            formData.append("userId", await liff.getUserId());
-            formData.append("firstName", document.getElementById("firstName").value);
-            formData.append("lastName", document.getElementById("lastName").value);
-            formData.append("nickname", document.getElementById("nickname").value);
-            formData.append("phone", document.getElementById("phone").value);
-            formData.append("accountNumber", document.getElementById("accountNumber").value);
-            formData.append("bankName", document.getElementById("bankName").value);
-            formData.append("profilePic", document.getElementById("profilePic").files[0]);
+    <h1>ลงทะเบียนใช้งาน</h1>
+    <div id="loading" style="display: none;">กำลังโหลด...</div>
+    <div id="registerFormContainer">
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="firstName">ชื่อจริง:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">นามสกุล:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="nickname">ชื่อเล่น:</label>
+                <input type="text" id="nickname" name="nickname" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="accountNumber">เลขบัญชี:</label>
+                <input type="text" id="accountNumber" name="accountNumber" required>
+            </div>
+             <div class="form-group">
+                <label for="bank">ธนาคาร:</label>
+                <input type="text" id="bank" name="bank" required>
+            </div>
+            <div class="form-group">
+                <label for="profilePic">รูปประจำตัว:</label>
+                <input type="file" id="profilePic" name="profilePic" accept="image/*">
+                <img id="profilePicPreview" src="#" alt="ตัวอย่างรูป" style="display: none;" />
+            </div>
+            <button type="submit" id="submitButton">บันทึกข้อมูล</button>
+        </form>
+    </div>
 
-            // ส่งข้อมูลไปที่ Google Apps Script
-            const response = await fetch("https://script.google.com/macros/s/AKfycbw6tLoqtia-GScT3_Aes0pd3HoPrscrEGe5wYzdqJ2u1ATKC9PF0ePe2uOBFDkhqd61/exec", {
-                method: "POST",
-                body: formData
-            });
+    <div id="message" style="display: none;"></div>
+    <button id="closeButton" style="display: none;">ปิดหน้าต่างนี้</button>
 
-            if (response.ok) {
-                document.getElementById('statusMessage').innerText = "บันทึกข้อมูลเรียบร้อย";
-            } else {
-                document.getElementById('statusMessage').innerText = "เกิดข้อผิดพลาด";
-            }
-        }
+    <script>
+        // ----------------------------------
+        // ---     CONFIGURATIONS         ---
+        // ----------------------------------
+        const LIFF_ID = '2007104190-Qq4B589l'; // <--- ใส่ LIFF ID ของคุณ
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw6tLoqtia-GScT3_Aes0pd3HoPrscrEGe5wYzdqJ2u1ATKC9PF0ePe2uOBFDkhqd61/exec'; // <--- ใส่ URL ของ GAS Web App
 
-        function closeWindow() {
-            liff.closeWindow();
-        }
+        // ----------------------------------
+        // ---        ELEMENTS            ---
+        // ----------------------------------
+        const loadingDiv = document.getElementById('loading');
+        const formContainer = document.getElementById('registerFormContainer');
+        const registerForm = document.getElementById('registerForm');
+        const submitButton = document.getElementById('submitButton');
+        const messageDiv = document.getElementById('message');
+        const closeButton = document.getElementById('closeButton');
+        const profilePicInput = document.getElementById('profilePic');
+        const profilePicPreview = document.getElementById('profilePicPreview');
 
-        initLIFF();
-    </script>
+        let lineUserId = null;
+        let profilePicBase64 = null;
+
+        // ----------------------------------
+        // ---      LIFF FUNCTIONS        ---
+        // ----------------------------------
+        async function initializeLiff() {
+            loadingDiv.style.display = 'block';
+            formContainer.style.display = 'none';
+            messageDiv.style.display = 'none';
+            closeButton.style.display = 'none';
+
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login({ redirectUri: window.location.href }); // Redirect back after login
+                    return; // Stop execution until page reloads after login
+                }
+
+                const profile = await liff.getProfile();
+                lineUserId = profile.userId;
+                console.log("User ID:", lineUserId);
+                formContainer.style.display = 'block'; // Show form after getting userId
+
+            } catch (error) {
+                console.error('LIFF Initialization failed:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้: ' + error.message, 'error');
+            } finally {
+                 loadingDiv.style.display = 'none';
+            }
+        }
+
+        // ----------------------------------
+        // ---     EVENT LISTENERS        ---
+        // ----------------------------------
+        profilePicInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePicBase64 = e.target.result; // Get Base64 string
+                    profilePicPreview.src = profilePicBase64;
+                    profilePicPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file); // Read file as Base64
+            } else {
+                 profilePicBase64 = null;
+                 profilePicPreview.style.display = 'none';
+            }
+        });
+
+        registerForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+            if (!lineUserId) {
+                 showMessage('ไม่พบข้อมูลผู้ใช้ LINE กรุณาลองโหลดหน้าใหม่อีกครั้ง', 'error');
+                 return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังบันทึก...';
+            loadingDiv.style.display = 'block';
+            messageDiv.style.display = 'none';
+
+            const formData = {
+                action: 'register',
+                lineUserId: lineUserId,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                nickname: document.getElementById('nickname').value,
+                phone: document.getElementById('phone').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                bank: document.getElementById('bank').value,
+                profilePicBase64: profilePicBase64 // Send base64 string
+            };
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                    mode: 'cors' // Important for cross-origin requests to GAS
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' || result.status === 'warning') {
+                    showMessage(result.message, 'success');
+                    formContainer.style.display = 'none'; // Hide form on success
+                    closeButton.style.display = 'block'; // Show close button
+                } else {
+                    throw new Error(result.message || 'Unknown error from server');
+                }
+            } catch (error) {
+                console.error('Registration failed:', error);
+                showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message, 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = 'บันทึกข้อมูล';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+
+         closeButton.addEventListener('click', function() {
+            if (liff.isInClient()) {
+                 liff.closeWindow();
+             } else {
+                 alert("กรุณากดปิดหน้าต่างนี้ด้วยตนเอง");
+             }
+         });
+
+        // ----------------------------------
+        // ---     HELPER FUNCTIONS       ---
+        // ----------------------------------
+        function showMessage(msg, type = 'success') {
+            messageDiv.textContent = msg;
+            messageDiv.className = type; // 'success' or 'error'
+            messageDiv.style.display = 'block';
+        }
+
+        // ----------------------------------
+        // ---          INITIALIZE        ---
+        // ----------------------------------
+        window.onload = initializeLiff;
+
+    </script>
+
 </body>
 </html>
