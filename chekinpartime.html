@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงเวลาทำงาน</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; text-align: center; }
+        .info { margin-bottom: 20px; }
+        #profilePic { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid #eee; }
+        #nickname { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+        #currentTime { font-size: 1.1em; margin-bottom: 20px; color: #555; }
+        .button-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        button {
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        #checkinButton { background-color: #28a745; }
+        #checkoutButton { background-color: #dc3545; }
+        #locationButton { background-color: #007bff; }
+        #cameraButton { background-color: #ffc107; color: #333; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #message { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        #closeButton { background-color: #6c757d; margin-top: 10px; width: 100%; }
+
+        /* Camera Styles */
+        #cameraContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #cameraFeed { max-width: 90%; max-height: 70%; border: 2px solid white; }
+        #captureButton { background-color: #00B900; margin-top: 20px; padding: 15px 30px; font-size: 18px; }
+        #cancelCameraButton { background-color: #dc3545; margin-top: 10px; padding: 10px 20px; }
+        #photoCanvas { display: none; } /* Hidden canvas */
+    </style>
+</head>
+<body>
+
+    <div id="loading">กำลังโหลดข้อมูล...</div>
+
+    <div id="mainContent" style="display: none;">
+        <div class="info">
+            <img id="profilePic" src="placeholder.png" alt="รูปโปรไฟล์">
+            <div id="nickname">ชื่อเล่น</div>
+            <div id="currentTime">--:--:--</div>
+        </div>
+
+        <div class="button-group">
+            <button id="checkinButton">เข้างาน</button>
+            <button id="checkoutButton">ออกงาน</button>
+            <button id="locationButton">กดโลเคชั่น</button>
+            <button id="cameraButton">ถ่ายรูปกล้องหน้า</button>
+        </div>
+
+         <div id="locationInfo" style="margin-bottom: 15px; font-size: 0.9em; color: #666;"></div>
+         <img id="takenPhotoPreview" src="#" alt="รูปที่ถ่าย" style="max-width: 100px; max-height: 100px; display: none; margin: 0 auto 15px auto;" />
+
+    </div>
+
+    <div id="message" style="display: none;"></div>
+    <button id="closeButton" style="display: none;">ปิดหน้าต่างนี้</button>
+
+    <div id="cameraContainer">
+        <video id="cameraFeed" autoplay playsinline></video>
+        <button id="captureButton">ถ่ายภาพ</button>
+        <button id="cancelCameraButton">ยกเลิก</button>
+        <canvas id="photoCanvas"></canvas>
+    </div>
+
+
+    <script>
+        // ----------------------------------
+        // ---     CONFIGURATIONS         ---
+        // ----------------------------------
+        const LIFF_ID = '2007104190-75q9m3n8'; // <--- ใส่ LIFF ID ของคุณ
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw6tLoqtia-GScT3_Aes0pd3HoPrscrEGe5wYzdqJ2u1ATKC9PF0ePe2uOBFDkhqd61/exec'; // <--- ใส่ URL ของ GAS Web App
+
+        // ----------------------------------
+        // ---        ELEMENTS            ---
+        // ----------------------------------
+        const loadingDiv = document.getElementById('loading');
+        const mainContent = document.getElementById('mainContent');
+        const profilePicImg = document.getElementById('profilePic');
+        const nicknameDiv = document.getElementById('nickname');
+        const currentTimeDiv = document.getElementById('currentTime');
+        const checkinButton = document.getElementById('checkinButton');
+        const checkoutButton = document.getElementById('checkoutButton');
+        const locationButton = document.getElementById('locationButton');
+        const cameraButton = document.getElementById('cameraButton');
+        const locationInfoDiv = document.getElementById('locationInfo');
+        const takenPhotoPreview = document.getElementById('takenPhotoPreview');
+        const messageDiv = document.getElementById('message');
+        const closeButton = document.getElementById('closeButton');
+
+        // Camera Elements
+        const cameraContainer = document.getElementById('cameraContainer');
+        const videoElement = document.getElementById('cameraFeed');
+        const canvasElement = document.getElementById('photoCanvas');
+        const captureButton = document.getElementById('captureButton');
+        const cancelCameraButton = document.getElementById('cancelCameraButton');
+
+
+        let lineUserId = null;
+        let currentTimestamp = null;
+        let currentLatitude = null;
+        let currentLongitude = null;
+        let currentAccuracy = null;
+        let takenPhotoBase64 = null;
+        let videoStream = null;
+
+        // ----------------------------------
+        // ---      LIFF & UI FUNCTIONS   ---
+        // ----------------------------------
+         function updateTime() {
+            const now = new Date();
+            currentTimestamp = now.toISOString(); // Store ISO string for sending
+            const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+            currentTimeDiv.textContent = `${dateString} - ${timeString}`;
+        }
+
+        async function fetchUserDetails(userId) {
+            try {
+                 const response = await fetch(`${GAS_WEB_APP_URL}?action=getUserDetails&userId=${userId}`, { method: 'GET', mode: 'cors'});
+                 const result = await response.json();
+                 if (result.status === 'success' && result.data) {
+                     nicknameDiv.textContent = result.data.nickname || 'N/A';
+                     if (result.data.profilePicUrl) {
+                        // IMPORTANT: Google Drive URLs from Apps Script might need adjustments to be directly embeddable.
+                        // The default getUrl() might point to a viewer page.
+                        // You might need Apps Script to return a direct download link format or use Drive API advanced service.
+                        // Placeholder image is used if URL doesn't work directly.
+                        profilePicImg.src = result.data.profilePicUrl; // Try direct URL first
+                        profilePicImg.onerror = function() { // Fallback if direct loading fails
+                             profilePicImg.src = 'https://via.placeholder.com/80?text=Profile'; // Placeholder
+                             console.warn("Could not load profile picture directly from Google Drive URL:", result.data.profilePicUrl);
+                         };
+                     } else {
+                         profilePicImg.src = 'https://via.placeholder.com/80?text=Profile'; // Placeholder
+                     }
+                 } else {
+                     nicknameDiv.textContent = 'ไม่พบข้อมูล';
+                     profilePicImg.src = 'https://via.placeholder.com/80?text=Profile';
+                     console.error('Failed to get user details:', result.message);
+                     // Optional: Redirect to registration if user not found
+                     // showMessage('ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน', 'error');
+                     // disableButtons();
+                 }
+             } catch (error) {
+                 console.error('Error fetching user details:', error);
+                 nicknameDiv.textContent = 'เกิดข้อผิดพลาด';
+                 profilePicImg.src = 'https://via.placeholder.com/80?text=Error';
+                 showMessage('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้', 'error');
+                 disableButtons();
+             }
+        }
+
+        async function initializeLiff() {
+            loadingDiv.style.display = 'block';
+            mainContent.style.display = 'none';
+            messageDiv.style.display = 'none';
+            closeButton.style.display = 'none';
+
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login({ redirectUri: window.location.href });
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                lineUserId = profile.userId;
+                console.log("User ID:", lineUserId);
+
+                await fetchUserDetails(lineUserId); // Fetch details after getting userId
+                mainContent.style.display = 'block'; // Show content
+                updateTime();
+                setInterval(updateTime, 1000); // Update time every second
+
+            } catch (error) {
+                console.error('LIFF Initialization failed:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message, 'error');
+                disableButtons();
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+
+        // ----------------------------------
+        // ---     ACTION FUNCTIONS       ---
+        // ----------------------------------
+        async function handleCheckIn(eventType) {
+            if (!lineUserId || !currentTimestamp) {
+                showMessage('ข้อมูลไม่พร้อม กรุณาลองใหม่อีกครั้ง', 'error');
+                return;
+            }
+
+            // Optional: Check if location and photo are taken
+             if (!currentLatitude) {
+                 const confirmLoc = confirm("คุณยังไม่ได้กดระบุตำแหน่ง ต้องการดำเนินการต่อหรือไม่?");
+                 if (!confirmLoc) return;
+             }
+             if (!takenPhotoBase64) {
+                  const confirmPhoto = confirm("คุณยังไม่ได้ถ่ายรูป ต้องการดำเนินการต่อหรือไม่?");
+                 if (!confirmPhoto) return;
+             }
+
+            disableButtons(); // Disable buttons during processing
+            loadingDiv.style.display = 'block';
+            messageDiv.style.display = 'none';
+
+            const dataToSend = {
+                action: eventType, // 'checkin' or 'checkout'
+                lineUserId: lineUserId,
+                timestamp: currentTimestamp, // Send ISO string timestamp
+                latitude: currentLatitude,
+                longitude: currentLongitude,
+                accuracy: currentAccuracy,
+                photoBase64: takenPhotoBase64 // Send photo base64
+            };
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataToSend),
+                    mode: 'cors'
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showMessage('บันทึกข้อมูล ' + (eventType === 'checkin' ? 'เข้างาน' : 'ออกงาน') + ' เรียบร้อยแล้ว', 'success');
+                    mainContent.style.display = 'none'; // Hide main content
+                    closeButton.style.display = 'block'; // Show close button
+                } else {
+                    throw new Error(result.message || 'Server error');
+                }
+            } catch (error) {
+                console.error('Check-in/out failed:', error);
+                showMessage('เกิดข้อผิดพลาดในการบันทึก: ' + error.message, 'error');
+                enableButtons(); // Re-enable buttons on error
+            } finally {
+                 loadingDiv.style.display = 'none';
+            }
+        }
+
+        async function getLocation() {
+            locationButton.disabled = true;
+            locationButton.textContent = 'กำลังค้นหา...';
+            locationInfoDiv.textContent = 'กำลังดึงข้อมูลตำแหน่ง...';
+            try {
+                // Prefer liff.getLocation if available
+                if (liff.geolocation) { // Check if liff.geolocation is available in the current LIFF version/context
+                    const location = await liff.getLocation();
+                     currentLatitude = location.latitude;
+                     currentLongitude = location.longitude;
+                     currentAccuracy = location.accuracy; // May be undefined in some contexts
+                     locationInfoDiv.textContent = `ตำแหน่ง: ${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)} (ความแม่นยำ: ${currentAccuracy || 'N/A'} m)`;
+                } else {
+                     // Fallback to navigator.geolocation
+                     await new Promise((resolve, reject) => {
+                         navigator.geolocation.getCurrentPosition(
+                             position => {
+                                 currentLatitude = position.coords.latitude;
+                                 currentLongitude = position.coords.longitude;
+                                 currentAccuracy = position.coords.accuracy;
+                                 locationInfoDiv.textContent = `ตำแหน่ง: ${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)} (ความแม่นยำ: ${currentAccuracy.toFixed(1)} m)`;
+                                 resolve();
+                             },
+                             error => {
+                                 console.error("Navigator Geolocation Error:", error);
+                                 locationInfoDiv.textContent = "ไม่สามารถดึงตำแหน่งได้: " + error.message;
+                                 reject(error);
+                             },
+                             { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 } // Options
+                         );
+                     });
+                }
+
+            } catch (error) {
+                console.error("Get Location Error:", error);
+                locationInfoDiv.textContent = "ไม่สามารถดึงตำแหน่งได้: " + (error.code ? `Code ${error.code}: ${error.message}` : error.message);
+                // Clear coordinates if failed
+                currentLatitude = null;
+                currentLongitude = null;
+                currentAccuracy = null;
+            } finally {
+                locationButton.disabled = false;
+                locationButton.textContent = 'กดโลเคชั่น';
+            }
+        }
+
+
+        // --- Camera Functions ---
+        async function startCamera() {
+            cameraButton.disabled = true;
+            cameraButton.textContent = 'กำลังเปิดกล้อง...';
+            try {
+                 if (videoStream) { // Stop existing stream first
+                      stopCamera();
+                 }
+                 videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }, // Force front camera
+                    audio: false
+                });
+                videoElement.srcObject = videoStream;
+                cameraContainer.style.display = 'flex'; // Show camera view
+                cameraButton.textContent = 'ถ่ายรูปกล้องหน้า'; // Reset button text if needed
+            } catch (err) {
+                console.error("Camera Error:", err);
+                alert("ไม่สามารถเปิดกล้องได้: " + err.message + "\n\nโปรดตรวจสอบว่าได้อนุญาตให้เข้าถึงกล้องใน Browser/LINE Settings");
+                cameraButton.disabled = false;
+                 cameraButton.textContent = 'ถ่ายรูปกล้องหน้า';
+            }
+        }
+
+        function takePhoto() {
+             if (!videoStream) return;
+             const context = canvasElement.getContext('2d');
+             // Set canvas size to match video stream resolution
+             canvasElement.width = videoElement.videoWidth;
+             canvasElement.height = videoElement.videoHeight;
+             // Draw current video frame onto the canvas
+             context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+             // Get base64 data from canvas
+             takenPhotoBase64 = canvasElement.toDataURL('image/jpeg', 0.8); // Use JPEG format with quality 0.8
+
+             // Show preview and stop camera
+             takenPhotoPreview.src = takenPhotoBase64;
+             takenPhotoPreview.style.display = 'block';
+             stopCamera();
+             cameraContainer.style.display = 'none'; // Hide camera view
+             cameraButton.disabled = false; // Re-enable camera button after taking photo
+             console.log("Photo taken, Base64 length:", takenPhotoBase64.length);
+         }
+
+         function stopCamera() {
+             if (videoStream) {
+                 videoStream.getTracks().forEach(track => track.stop());
+                 videoElement.srcObject = null;
+                 videoStream = null;
+             }
+             cameraContainer.style.display = 'none';
+             cameraButton.disabled = false; // Ensure button is enabled if cancelled
+             cameraButton.textContent = 'ถ่ายรูปกล้องหน้า';
+         }
+
+
+        // ----------------------------------
+        // ---     EVENT LISTENERS        ---
+        // ----------------------------------
+        checkinButton.addEventListener('click', () => handleCheckIn('checkin'));
+        checkoutButton.addEventListener('click', () => handleCheckIn('checkout'));
+        locationButton.addEventListener('click', getLocation);
+        cameraButton.addEventListener('click', startCamera);
+
+        captureButton.addEventListener('click', takePhoto);
+        cancelCameraButton.addEventListener('click', stopCamera); // Use stopCamera to close the view
+
+
+        closeButton.addEventListener('click', function() {
+            if (liff.isInClient()) {
+                liff.closeWindow();
+            } else {
+                alert("กรุณากดปิดหน้าต่างนี้ด้วยตนเอง");
+            }
+        });
+
+        // ----------------------------------
+        // ---     HELPER FUNCTIONS       ---
+        // ----------------------------------
+        function showMessage(msg, type = 'success') {
+            messageDiv.textContent = msg;
+            messageDiv.className = type;
+            messageDiv.style.display = 'block';
+        }
+
+        function disableButtons() {
+            checkinButton.disabled = true;
+            checkoutButton.disabled = true;
+            locationButton.disabled = true;
+            cameraButton.disabled = true;
+        }
+
+        function enableButtons() {
+             checkinButton.disabled = false;
+             checkoutButton.disabled = false;
+             locationButton.disabled = false;
+             cameraButton.disabled = false;
+        }
+
+        // ----------------------------------
+        // ---          INITIALIZE        ---
+        // ----------------------------------
+        window.onload = initializeLiff;
+
+    </script>
+
+</body>
+</html>
