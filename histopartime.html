@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติการทำงาน</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        #historyTable { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        #historyTable th, #historyTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #historyTable th { background-color: #f2f2f2; }
+        #historyTable tr:nth-child(even) { background-color: #f9f9f9; }
+        #message { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; }
+        .info { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+         #closeButton { background-color: #6c757d; margin-top: 20px; width: 100%; padding: 10px; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>ประวัติการทำงาน</h1>
+    <div id="loading">กำลังโหลดประวัติ...</div>
+    <div id="historyContent" style="display: none;">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>วันที่/เวลา</th>
+                    <th>ประเภท</th>
+                    </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                </tbody>
+        </table>
+        <div id="noHistoryMessage" style="display: none; text-align: center; margin-top: 20px; color: #666;">
+            ไม่พบประวัติการทำงาน
+        </div>
+    </div>
+
+    <div id="message" style="display: none;"></div>
+     <button id="closeButton" style="display: none;">ปิดหน้าต่างนี้</button>
+
+    <script>
+        // ----------------------------------
+        // ---     CONFIGURATIONS         ---
+        // ----------------------------------
+        const LIFF_ID = '2007104190-2XA5WG1q'; // <--- ใส่ LIFF ID ของคุณ
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw6tLoqtia-GScT3_Aes0pd3HoPrscrEGe5wYzdqJ2u1ATKC9PF0ePe2uOBFDkhqd61/exec'; // <--- ใส่ URL ของ GAS Web App
+
+        // ----------------------------------
+        // ---        ELEMENTS            ---
+        // ----------------------------------
+        const loadingDiv = document.getElementById('loading');
+        const historyContent = document.getElementById('historyContent');
+        const historyTableBody = document.getElementById('historyTableBody');
+        const noHistoryMessage = document.getElementById('noHistoryMessage');
+        const messageDiv = document.getElementById('message');
+        const closeButton = document.getElementById('closeButton');
+
+        let lineUserId = null;
+
+        // ----------------------------------
+        // ---      LIFF & UI FUNCTIONS   ---
+        // ----------------------------------
+        async function fetchHistory(userId) {
+            loadingDiv.style.display = 'block';
+            historyContent.style.display = 'none';
+            messageDiv.style.display = 'none';
+            closeButton.style.display = 'none'; // Hide close button initially
+
+            try {
+                 const response = await fetch(`${GAS_WEB_APP_URL}?action=getHistory&userId=${userId}`, { method: 'GET', mode: 'cors'});
+                 const result = await response.json();
+
+                 if (result.status === 'success' && result.data) {
+                     displayHistory(result.data);
+                     closeButton.style.display = 'block'; // Show close button after loading data
+                 } else {
+                     throw new Error(result.message || 'Failed to load history');
+                 }
+             } catch (error) {
+                 console.error('Error fetching history:', error);
+                 showMessage('เกิดข้อผิดพลาดในการโหลดประวัติ: ' + error.message, 'error');
+                 closeButton.style.display = 'block'; // Also show close button on error
+             } finally {
+                 loadingDiv.style.display = 'none';
+             }
+        }
+
+        function displayHistory(historyData) {
+            historyTableBody.innerHTML = ''; // Clear previous data
+
+            if (historyData.length === 0) {
+                noHistoryMessage.style.display = 'block';
+                 historyContent.style.display = 'block'; // Show the container even if empty
+                return;
+            }
+
+            noHistoryMessage.style.display = 'none';
+            historyData.forEach(log => {
+                const row = historyTableBody.insertRow();
+                const cellTimestamp = row.insertCell();
+                const cellEventType = row.insertCell();
+
+                cellTimestamp.textContent = log.timestamp;
+                cellEventType.textContent = (log.eventType === 'checkin' ? 'เข้างาน' : (log.eventType === 'checkout' ? 'ออกงาน' : log.eventType));
+
+                // Example: Add image cell if photoUrl exists
+                // const cellPhoto = row.insertCell();
+                // if(log.photoUrl) {
+                //     const img = document.createElement('img');
+                //     img.src = log.photoUrl; // Need to handle potential direct link issues
+                //     img.style.maxWidth = '50px';
+                //     img.style.maxHeight = '50px';
+                //     img.alt = 'รูป';
+                //     cellPhoto.appendChild(img);
+                // } else {
+                //     cellPhoto.textContent = '-';
+                // }
+            });
+             historyContent.style.display = 'block'; // Show table
+        }
+
+
+        async function initializeLiff() {
+            loadingDiv.style.display = 'block';
+            historyContent.style.display = 'none';
+            messageDiv.style.display = 'none';
+
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login({ redirectUri: window.location.href });
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                lineUserId = profile.userId;
+                console.log("User ID:", lineUserId);
+
+                await fetchHistory(lineUserId); // Fetch history after getting userId
+
+            } catch (error) {
+                console.error('LIFF Initialization failed:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message, 'error');
+                 closeButton.style.display = 'block'; // Show close button even on init error
+            }
+             // Loading hide is handled within fetchHistory's finally block
+        }
+
+         // ----------------------------------
+        // ---     EVENT LISTENERS        ---
+        // ----------------------------------
+         closeButton.addEventListener('click', function() {
+            if (liff.isInClient()) {
+                 liff.closeWindow();
+             } else {
+                 alert("กรุณากดปิดหน้าต่างนี้ด้วยตนเอง");
+             }
+         });
+
+
+        // ----------------------------------
+        // ---     HELPER FUNCTIONS       ---
+        // ----------------------------------
+        function showMessage(msg, type = 'info') { // Default to 'info' or 'error' for this page
+            messageDiv.textContent = msg;
+            messageDiv.className = type;
+            messageDiv.style.display = 'block';
+        }
+
+        // ----------------------------------
+        // ---          INITIALIZE        ---
+        // ----------------------------------
+        window.onload = initializeLiff;
+
+    </script>
+
+</body>
+</html>
