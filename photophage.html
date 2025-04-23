@@ -75,8 +75,6 @@
 
                 document.getElementById('message').innerText = 'รอสักครู่ กำลังบันทึกข้อมูล...';  
 
-                google.script.run.withSuccessHandler(function(response) {  
-                    document.getElementById('message').innerText = 'บันทึกข้อมูลเรียบร้อย';  
                     setTimeout(() => {  
                         window.close();  
                     }, 2000);  
