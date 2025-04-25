@@ -321,31 +321,33 @@
 
     // ฟังก์ชันสำหรับส่ง Flex Message ผ่าน LINE
     async function sendFlexMessage(data) {
-      const flexMessage = {
-        type: "flex",
-        altText: "บันทึกข้อมูลเรียบร้อยแล้ว",
-        contents: {
-          type: "bubble",
-          body: {
-            type: "box",
-            layout: "vertical",
-            contents: [{
-              type: "text",
-              text: "บันทึกข้อมูลเรียบร้อยแล้ว",
-              weight: "bold",
-              size: "md",
-            }]
-          }
+            const flexMessage = {
+                type: "flex",
+                altText: "บันทึกออเดอร์",
+                contents: {
+                    type: "bubble",
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        contents: [
+                            { type: "text", text: "🟢 บันทึกออเดอร์สำเร็จ", weight: "bold", size: "md", color: "#1DB446" },
+                            {
+                                type: "box", layout: "vertical", margin: "lg", spacing: "sm", contents: [
+                                    { type: "text", text: `ชื่อ: ${data.nameId}` },
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
+            try { 
+                await liff.sendMessages([flexMessage]);
+                liff.closeWindow(); // ปิดหน้าต่าง LIFF
+                console.log("Flex message sent"); 
+            } catch (error) { 
+                console.error("Error sending Flex message:", error); 
+            }
         }
-      };
-      try {
-        await liff.sendMessages([flexMessage]);
-        liff.closeWindow(); // ปิดหน้าต่าง LIFF
-        console.log("Flex message sent");
-      } catch (error) {
-        console.error("Error sending Flex message:", error);
-      }
-    }
 
 
     // ฟังก์ชันสำหรับรับวันที่ในรูปแบบ 
