@@ -23,7 +23,7 @@
 <body>
   <div class="container">
     <h2>ลงทะเบียนรับประกัน Remap รถยนต์</h2>
-    <form id="regForm">
+    <form id="regForm" autocomplete="off">
       <label>ชื่อ-สกุล</label>
       <input type="text" name="name" required>
       <label>เบอร์โทร</label>
@@ -44,27 +44,26 @@
     const LIFF_ID = '2007499630-0J5jPaaP';
     const API_URL = 'https://script.google.com/macros/s/AKfycbzgxZDe7c8aKLyNvJPVvwB-OGZjXX_Q4EygpRCgxSiSu595e2sSqb5YXQwuvHqHe05kHw/exec';
     let userId = '';
-
     let carData = []; // array of {name, tel, carNo}
 
-    // LIFF
-    async function main(){
+    // โหลด LIFF และเก็บ userId
+    async function initLIFF(){
       await liff.init({ liffId: LIFF_ID });
       if (!liff.isLoggedIn()) liff.login();
       const profile = await liff.getProfile();
       userId = profile.userId;
+      // console.log("userId = ", userId); // debug
     }
-    main();
+    // รอ init liff เสร็จ
+    let liffReady = initLIFF();
 
     function addCar() {
-      // ดึงข้อมูลจาก input
-      const name = document.querySelector('input[name="name"]').value;
-      const tel = document.querySelector('input[name="tel"]').value;
-      const carNo = document.querySelector('input[name="carNo"]').value;
+      const name = document.querySelector('input[name="name"]').value.trim();
+      const tel = document.querySelector('input[name="tel"]').value.trim();
+      const carNo = document.querySelector('input[name="carNo"]').value.trim();
       if(name && tel && carNo){
         carData.push({name, tel, carNo});
         updateCarList();
-        // clear เฉพาะทะเบียน
         document.querySelector('input[name="carNo"]').value = '';
       }
     }
@@ -85,43 +84,56 @@
 
     document.getElementById('regForm').onsubmit = async (e) => {
       e.preventDefault();
+      await liffReady; // รอให้ LIFF init เสร็จก่อน
+
       // ดึงข้อมูลฟอร์มล่าสุด
-      const name = document.querySelector('input[name="name"]').value;
-      const tel = document.querySelector('input[name="tel"]').value;
-      const carNo = document.querySelector('input[name="carNo"]').value;
+      const name = document.querySelector('input[name="name"]').value.trim();
+      const tel = document.querySelector('input[name="tel"]').value.trim();
+      const carNo = document.querySelector('input[name="carNo"]').value.trim();
       // ถ้ากรอกทะเบียนรถแต่ยังไม่กดเพิ่มคัน
-      if(name && tel && carNo) {
+      if(name && tel && carNo && (carData.length === 0 || carData[carData.length-1].carNo !== carNo)) {
         carData.push({name, tel, carNo});
       }
       if(carData.length === 0){
         alert('กรุณากรอกข้อมูลอย่างน้อย 1 คัน');
+        document.getElementById('saveBtn').disabled = false;
         return;
       }
       document.getElementById('saveBtn').disabled = true;
+
       // POST ไป Apps Script
       try {
+        const payload = {
+          userId: userId,
+          carData: carData
+        };
+        // console.log("payload = ", payload); // debug
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({userId, carData})
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
+        // console.log(data); // debug
         if(data.status === "ok"){
-          // ส่ง Flex Message
           await sendFlexSuccess(carData);
           document.getElementById('regForm').classList.add('hidden');
           document.getElementById('successMsg').classList.remove('hidden');
+          carData = []; // reset
+          updateCarList();
         } else {
-          alert('เกิดข้อผิดพลาด กรุณาลองใหม่');
+          alert('เกิดข้อผิดพลาด: ' + (data.message || 'กรุณาลองใหม่'));
         }
       } catch (err) {
         alert('ผิดพลาด: '+err.message);
+      } finally {
+        document.getElementById('saveBtn').disabled = false;
       }
     };
 
     async function sendFlexSuccess(carList){
       // ส่ง flex message ไป chat ตัวเอง
-      if(!liff.isInClient()) return; // เฉพาะเปิดใน LINE
+      if(!liff.isInClient()) return;
       const flex = {
         "type": "flex",
         "altText": "บันทึกข้อมูลรถเรียบร้อย",
