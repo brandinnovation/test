@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>ลงทะเบียนรีแมพรถยนต์</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a; /* สีดำ */
+      color: #f0f0f0; /* สีข้อความ */
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #2c2c2c; /* สีดำเข้มขึ้น */
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid #FFD700; /* สีเหลืองทอง */
+    }
+    h2 {
+      color: #FFD700; /* สีเหลืองทอง */
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #FFD700; /* สีเหลืองทอง */
+    }
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"] {
+      width: calc(100% - 20px);
+      padding: 12px 10px;
+      border: 1px solid #FFD700; /* สีเหลืองทอง */
+      border-radius: 5px;
+      background-color: #3a3a3a; /* สีดำเข้ม */
+      color: #f0f0f0;
+      font-size: 16px;
+    }
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #FFEA00; /* สีเหลืองสว่างขึ้นเมื่อโฟกัส */
+      box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    button {
+      background-color: #FFD700; /* สีเหลืองทอง */
+      color: #1a1a1a; /* สีดำ */
+      padding: 14px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      width: 100%;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background-color: #FFEA00; /* สีเหลืองสว่างขึ้น */
+      transform: translateY(-2px);
+    }
+    .message-container {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #2c2c2c;
+      border: 1px solid #FFD700;
+      color: #f0f0f0;
+      display: none; /* ซ่อนไว้ตอนแรก */
+    }
+    .close-button {
+      background-color: #555;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    .close-button:hover {
+      background-color: #777;
+    }
+    #loadingSpinner {
+        display: none; /* Hidden by default */
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #FFD700; /* Yellow gold */
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  </style>
+  <script src="https://static.line-scdn.net/liff/2.21.0/liff.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>ลงทะเบียนรีแมพรถยนต์</h2>
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="name">ชื่อ-สกุล:</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">เบอร์โทร:</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="[0-9]{10}">
+      </div>
+      <div class="form-group">
+        <label for="licensePlate">เลขทะเบียนรถ:</label>
+        <input type="text" id="licensePlate" name="licensePlate" required>
+      </div>
+      <div class="form-group">
+        <label for="warrantyDate">วันที่ลงทะเบียนรับประกัน:</label>
+        <input type="date" id="warrantyDate" name="warrantyDate" readonly>
+      </div>
+      <button type="submit" id="submitBtn">บันทึกข้อมูล</button>
+      <div id="loadingSpinner"></div>
+    </form>
+
+    <div id="messageContainer" class="message-container">
+      <p id="responseMessage"></p>
+      <button class="close-button" onclick="liff.closeWindow()">ปิดหน้าต่างนี้</button>
+    </div>
+  </div>
+
+  <script>
+    let lineUserID = '';
+
+    window.onload = function() {
+      liff.init({
+        liffId: 'YOUR_LIFF_ID' // เราจะมาใส่ LIFF ID ตรงนี้ในขั้นตอนถัดไป
+      }).then(() => {
+        if (liff.isLoggedIn()) {
+          liff.getProfile().then(profile => {
+            lineUserID = profile.userId;
+            console.log('Line User ID:', lineUserID);
+          }).catch(err => {
+            console.error(err);
+          });
+        } else {
+          liff.login();
+        }
+      }).catch(err => {
+        console.error('LIFF init failed', err);
+      });
+
+      // Set today's date automatically
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = (today.getMonth() + 1).toString().padStart(2, '0');
+      const day = today.getDate().toString().padStart(2, '0');
+      document.getElementById('warrantyDate').value = `<span class="math-inline">\{year\}\-</span>{month}-${day}`;
+    };
+
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent default form submission
+
+      const submitBtn = document.getElementById('submitBtn');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const messageContainer = document.getElementById('messageContainer');
+      const responseMessage = document.getElementById('responseMessage');
+
+      submitBtn.disabled = true;
+      loadingSpinner.style.display = 'block';
+
+      const formData = {
+        lineUserID: lineUserID,
+        name: document.getElementById('name').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        licensePlate: document.getElementById('licensePlate').value,
+        warrantyDate: document.getElementById('warrantyDate').value
+      };
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          const res = JSON.parse(response);
+          responseMessage.textContent = res.message;
+          if (res.status === 'success') {
+            // Send Flex Message
+            google.script.run.sendFlexMessage(
+              formData.lineUserID,
+              formData.name,
+              formData.phoneNumber,
+              formData.licensePlate,
+              formData.warrantyDate
+            );
+            document.getElementById('registrationForm').reset(); // Clear form
+          }
+          messageContainer.style.display = 'block';
+          loadingSpinner.style.display = 'none';
+          submitBtn.disabled = false;
+        })
+        .withFailureHandler(function(error) {
+          responseMessage.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message;
+          messageContainer.style.display = 'block';
+          loadingSpinner.style.display = 'none';
+          submitBtn.disabled = false;
+        })
+        .doPost({
+          action: 'saveRegistration',
+          postData: {
+            contents: JSON.stringify(formData)
+          }
+        });
+    });
+  </script>
+</body>
+</html>
